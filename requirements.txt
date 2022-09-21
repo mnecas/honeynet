@@ -1,2 +1,5 @@
 django
 pre-commit
+djangorestframework
+markdown
+django-filter

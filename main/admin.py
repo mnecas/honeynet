@@ -1,8 +1,8 @@
 from django.contrib import admin
 
-from main.models import Honeypot, Attacker, HoneypotHasAttacker, AttackDump
+from main.models import Honeypot, Attacker, HoneypotAttack, AttackDump
 
 admin.site.register(Honeypot)
 admin.site.register(Attacker)
-admin.site.register(HoneypotHasAttacker)
+admin.site.register(HoneypotAttack)
 admin.site.register(AttackDump)

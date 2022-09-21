@@ -2,10 +2,8 @@ from django.db import models
 
 
 class Honeypot(models.Model):
-    name = models.CharField(max_length=64)
-    type = models.CharField(max_length=64)
-    ip = models.GenericIPAddressField()
-    port = models.IntegerField()
+    name = models.CharField(max_length=128)
+    type = models.CharField(max_length=128)
 
 
 class Attacker(models.Model):
@@ -14,7 +12,7 @@ class Attacker(models.Model):
     mac = models.CharField(max_length=20)
 
 
-class HoneypotHasAttacker(models.Model):
+class HoneypotAttack(models.Model):
     honeypot = models.ForeignKey(Honeypot, on_delete=models.CASCADE)
     attacker = models.ForeignKey(Attacker, on_delete=models.CASCADE)
     data = models.JSONField()

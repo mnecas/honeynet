@@ -4,9 +4,8 @@ from django.http import HttpResponse
 from main.models import Honeypot, AttackDump
 from django.core.exceptions import BadRequest
 from django.core.files.storage import FileSystemStorage
-from django.views.decorators.csrf import csrf_exempt, csrf_protect
-from datetime import datetime
-from django.utils import timezone
+from main.api.serializers import HoneypotSerializer, AttackerSerializer
+from rest_framework.response import Response
 
 
 def index(request):
@@ -19,17 +18,14 @@ def honeypots(request):
         data = serializers.serialize("json", Honeypot.objects.all())
         return HttpResponse(data, content_type="application/json")
     if request.method == "POST":
-        honeypot = Honeypot.objects.get_or_create(
-            request.POST.get("IP"),
-            request.POST.get("type"),
-            request.POST.get("port"),
-            request.POST.get("name"),
+        honeypot, _ = Honeypot.objects.get_or_create(
+            type=request.POST.get("type"),
+            name=request.POST.get("name"),
         )
-        data = serializers.serialize("json", honeypot)
+        data = serializers.serialize("json", [honeypot])
         return HttpResponse(data, content_type="application/json")
 
 
-@csrf_exempt
 def honeypot(request, id):
     if request.method == "GET":
         data = serializers.serialize("json", Honeypot.objects.filter(id=id))
