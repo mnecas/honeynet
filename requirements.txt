@@ -1,5 +1,5 @@
 django
-pre-commit
 djangorestframework
-markdown
 django-filter
+pre-commit
+markdown
