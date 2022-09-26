@@ -12,6 +12,7 @@ urlpatterns = [
     path("honeypots/", honeypot_list),
     path("honeypots/<int:pk>/", honeypot_detail),
     path("honeypots/<int:pk>/upload", FileUploadView.as_view()),
+    # path("honeypots/<int:pk>/data", FileUploadView.as_view()),
     path("api-auth/", include("rest_framework.urls")),
 ]
 
