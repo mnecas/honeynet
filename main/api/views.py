@@ -1,3 +1,4 @@
+from main.api.authentication import HoneypotPermission
 from main.api.serializers import HoneypotSerializer, HoneypotAttackSerializer
 from main.models import Honeypot, HoneypotAttack, AttackDump
 from rest_framework.viewsets import ModelViewSet
@@ -10,6 +11,7 @@ from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User, Group
 from django.core.files.storage import FileSystemStorage
 from django.http import Http404
+
 import os
 import uuid
 
@@ -24,17 +26,20 @@ class HoneypotViewSet(ModelViewSet):
         """
         Instantiates and returns the list of permissions that this view requires.
         """
-        print(self.action)
         if self.action == "create":
             permission_classes = []
         else:
-            permission_classes = [IsAuthenticated]
+            permission_classes = [HoneypotPermission]
         return [permission() for permission in permission_classes]
 
     def create(self, request):
         honeypot_serializer = HoneypotSerializer(data=request.data)
         if honeypot_serializer.is_valid():
-            honeypot_serializer.save()
+            if Honeypot.objects.filter(
+                name=request.data.get("name"), type=request.data.get("type")
+            ).exists():
+                return Response(status=400)
+
             honeypot_group = Group.objects.get(name="honeypot")
             user = User.objects.create_user(
                 username="honeypot-{}-{}".format(
@@ -43,6 +48,7 @@ class HoneypotViewSet(ModelViewSet):
             )
             user.groups.add(honeypot_group)
             token = Token.objects.create(user=user)
+            honeypot_serializer.save(author=user)
             return Response(
                 {
                     "token": token.key,
@@ -57,14 +63,14 @@ class HoneypotViewSet(ModelViewSet):
 class HoneypotAttackViewSet(ModelViewSet):
     queryset = HoneypotAttack.objects.all()
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HoneypotPermission]
     serializer_class = HoneypotAttackSerializer
 
 
 class FileUploadView(APIView):
     parser_classes = [FileUploadParser]
     authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    permission_classes = [HoneypotPermission]
 
     def get_honeypot(self, pk):
         try:

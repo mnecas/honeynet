@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 class Honeypot(models.Model):
     name = models.CharField(max_length=128)
     type = models.CharField(max_length=128)
+    author = models.ForeignKey(User, on_delete=models.CASCADE)
 
 
 class Attacker(models.Model):
