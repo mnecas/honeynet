@@ -1,9 +1,9 @@
-from rest_framework import permissions
+from rest_framework.permissions import BasePermission
 from rest_framework import exceptions
 from rest_framework.authtoken.models import Token
 
 
-class HoneypotPermission(permissions.BasePermission):
+class HoneypotPermission(BasePermission):
     def get_user(self, request):
         try:
             user = Token.objects.get(key=request.auth).user

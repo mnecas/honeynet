@@ -7,6 +7,7 @@ GROUPS = {
         # django app model specific permissions
         "honeypot": ["add"],
         "honeypot attack": ["add"],
+        "attack dump": ["add"],
     },
 }
 

@@ -9,7 +9,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
-from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.authtoken.models import Token
 from rest_framework.decorators import action, parser_classes
 from rest_framework.authentication import TokenAuthentication
@@ -34,7 +34,7 @@ class HoneypotViewSet(ModelViewSet):
         if self.action == "create":
             permission_classes = []
         else:
-            permission_classes = [HoneypotPermission]
+            permission_classes = [IsAdminUser | HoneypotPermission]
         return [permission() for permission in permission_classes]
 
     def create(self, request):
