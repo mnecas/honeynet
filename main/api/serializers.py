@@ -18,4 +18,4 @@ class AttackerSerializer(serializers.ModelSerializer):
 class HoneypotAttackSerializer(serializers.ModelSerializer):
     class Meta:
         model = HoneypotAttack
-        fields = ["honeypot", "attacker", "data", "timestamp"]
+        fields = ["data"]

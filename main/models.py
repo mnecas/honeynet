@@ -18,7 +18,7 @@ class HoneypotAttack(models.Model):
     honeypot = models.ForeignKey(Honeypot, on_delete=models.CASCADE)
     attacker = models.ForeignKey(Attacker, on_delete=models.CASCADE)
     data = models.JSONField()
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(auto_now_add=True)
 
 
 class AttackDump(models.Model):
