@@ -1,4 +1,4 @@
-from main.api.serializers import HoneypotSerializer, HoneypotAttackSerializer
+from api.serializers import HoneypotSerializer, HoneypotAttackSerializer
 from main.models import Honeypot, HoneypotAttack
 from rest_framework.response import Response
 from rest_framework.views import APIView

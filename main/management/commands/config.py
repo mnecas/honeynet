@@ -30,7 +30,7 @@ class Command(BaseCommand):
 
                     # Generate permission name as Django would generate it
                     name = "Can {} {}".format(permission_name, app_model)
-                    print("Creating {}".format(name))
+                    # print("Creating {}".format(name))
 
                     try:
                         model_add_perm = Permission.objects.get(name=name)

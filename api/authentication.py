@@ -20,4 +20,4 @@ class HoneypotPermission(BasePermission):
     def has_permission(self, request, view):
         user = self.get_user(request)
         is_honeypot_user = user.groups.filter(name="honeypot").exists()
-        return is_honeypot_user and view.action != "list"
+        return is_honeypot_user and request.method == "POST"

@@ -1,26 +1,26 @@
-from main.api.authentication import HoneypotPermission
-from main.api.serializers import (
+from api.authentication import HoneypotPermission
+from api.serializers import (
     AttackerSerializer,
     HoneypotSerializer,
     HoneypotAttackSerializer,
 )
-from main.models import Attacker, Honeypot, HoneypotAttack, AttackDump
+from main.models import Attacker, Honeypot, AttackDump
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
 from rest_framework.permissions import (
     IsAdminUser,
     IsAuthenticated,
     DjangoModelPermissions,
+    OR,
 )
 from rest_framework.authtoken.models import Token
-from rest_framework.decorators import action, parser_classes
+from rest_framework.decorators import action
 from rest_framework.authentication import TokenAuthentication
 from django.contrib.auth.models import User, Group
 from django.core.files.storage import FileSystemStorage
-from django.http import Http404
-
+from main.management.commands.config import Command as HoneypotGroupInit
+from django.core.exceptions import ObjectDoesNotExist
 import os
 import uuid
 
@@ -36,14 +36,14 @@ class HoneypotViewSet(ModelViewSet):
         Instantiates and returns the list of permissions that this view requires.
         """
         if self.action == "create":
-            permission_classes = []
+            self.permission_classes = []
         else:
-            permission_classes = [
-                DjangoModelPermissions,
+            self.permission_classes = [
                 IsAuthenticated,
-                IsAdminUser | HoneypotPermission,
+                DjangoModelPermissions,
+                HoneypotPermission,
             ]
-        return [permission() for permission in permission_classes]
+        return super(ModelViewSet, self).get_permissions()
 
     def create(self, request):
         honeypot_serializer = HoneypotSerializer(data=request.data)
@@ -53,7 +53,10 @@ class HoneypotViewSet(ModelViewSet):
             ).exists():
                 return Response(status=400)
 
+            if not Group.objects.filter(name="honeypot").exists():
+                HoneypotGroupInit().handle()
             honeypot_group = Group.objects.get(name="honeypot")
+
             user = User.objects.create_user(
                 username="honeypot-{}-{}".format(
                     request.data.get("type"), str(uuid.uuid4())
@@ -63,10 +66,12 @@ class HoneypotViewSet(ModelViewSet):
             token = Token.objects.create(user=user)
             honeypot_serializer.save(author=user)
             return Response(
-                {
+                status=201,
+                content_type="application/json",
+                data={
                     "token": token.key,
                     "id": Honeypot.objects.filter(name=request.data.get("name"))[0].id,
-                }
+                },
             )
         return Response(status=400)
 
@@ -81,11 +86,13 @@ class HoneypotViewSet(ModelViewSet):
         filename = fs.save(file_path, file_obj)
         uploaded_file_url = fs.url(filename)
         AttackDump.objects.get_or_create(path=uploaded_file_url, honeypot=honeypot)
-        return Response(status=204)
+        return Response(status=201)
 
     @action(detail=True, methods=["post"])
     def attack(self, request, *args, **kwargs):
         honeypot = self.get_object()
+        if not request.data.get("attacker"):
+            return Response(status=400)
         attacker_serializer = AttackerSerializer(data=request.data.pop("attacker"))
         honeypot_attack_serializer = HoneypotAttackSerializer(data=request.data)
         if honeypot_attack_serializer.is_valid() and attacker_serializer.is_valid():
@@ -93,4 +100,5 @@ class HoneypotViewSet(ModelViewSet):
                 **attacker_serializer.validated_data
             )
             honeypot_attack_serializer.save(honeypot=honeypot, attacker=attacker)
-        return Response(status=204)
+            return Response(status=201)
+        return Response(status=200)

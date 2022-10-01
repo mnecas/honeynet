@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework.urlpatterns import format_suffix_patterns
-from main.api.views import HoneypotViewSet
+from api.views import HoneypotViewSet
 
 honeypot_list = HoneypotViewSet.as_view({"get": "list", "post": "create"})
 
@@ -12,11 +12,11 @@ honeypot_upload = HoneypotViewSet.as_view({"post": "upload"})
 honeypot_attack = HoneypotViewSet.as_view({"post": "attack"})
 
 urlpatterns = [
-    path("honeypots/", honeypot_list),
-    path("honeypots/<int:pk>/", honeypot_detail),
-    path("honeypots/<int:pk>/upload", honeypot_upload),
-    path("honeypots/<int:pk>/attack", honeypot_attack),
-    path("api-auth/", include("rest_framework.urls")),
+    path("honeypots/", honeypot_list, name="honeypots"),
+    path("honeypots/<int:pk>/", honeypot_detail, name="honeypot"),
+    path("honeypots/<int:pk>/upload", honeypot_upload, name="upload"),
+    path("honeypots/<int:pk>/attack", honeypot_attack, name="attack"),
+    # path("api-auth/", include("rest_framework.urls")),
 ]
 
 urlpatterns = format_suffix_patterns(urlpatterns)

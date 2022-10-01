@@ -16,4 +16,4 @@ class Command(BaseCommand):
             )
             user.set_password("mnecas")
             user.save()
-            print("Created mnecas|mnecas admin account")
+            # print("Created mnecas|mnecas admin account")
