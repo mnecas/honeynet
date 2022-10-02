@@ -12,7 +12,7 @@ honeypot_upload = HoneypotViewSet.as_view({"post": "upload"})
 honeypot_attack = HoneypotViewSet.as_view({"post": "attack"})
 
 urlpatterns = [
-    path("honeypots", honeypot_list, name="honeypots"),
+    path("honeypots/", honeypot_list, name="honeypots"),
     path("honeypots/<int:pk>/", honeypot_detail, name="honeypot"),
     path("honeypots/<int:pk>/upload", honeypot_upload, name="upload"),
     path("honeypots/<int:pk>/attack", honeypot_attack, name="attack"),

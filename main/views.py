@@ -6,8 +6,11 @@ from main.models import HoneypotAttack, Honeypot, AttackDump
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from django.core.files.storage import FileSystemStorage
+from api.serializers import HoneypotAttackSerializer
 import tarfile
-import os.path
+from io import BytesIO
+import os
+import json
 import tempfile
 
 
@@ -49,23 +52,32 @@ class ExportView(View):
         join_checkbox = request.POST.get("join_checkbox")
         dumps_ids = request.POST.getlist("dumps_checkboxes")
         attacks_ids = request.POST.getlist("attacks_checkboxes")
-        print(request.POST)
-        print(attacks_ids)
-        print(dumps_ids)
-        print(join_checkbox)
-        print(remove_checkbox)
-        honeypot = Honeypot.objects.get(pk=pk)
-        # attacks = HoneypotAttack.objects.filter(honeypot=honeypot, pk__in=attacks_ids)
-        dumps = AttackDump.objects.filter(honeypot=honeypot, pk__in=dumps_ids)
-
         fs = FileSystemStorage()
+        honeypot = Honeypot.objects.get(pk=pk)
+        attacks = HoneypotAttack.objects.filter(honeypot=honeypot, pk__in=attacks_ids)
+        dumps = AttackDump.objects.filter(honeypot=honeypot, pk__in=dumps_ids)
+        dumps_files = list(map(lambda x: fs.open(x.path).name, dumps))
         with tempfile.NamedTemporaryFile("wb", suffix=".tar.gz", delete=False) as f:
             with tarfile.open(fileobj=f, mode="w:gz") as tar:
-                for dump in dumps:
-                    file = fs.open(dump.path)
-                    print(file)
-                    tar.add(dump.path, arcname=os.path.basename(dump.path))
+                if attacks_ids:
+                    data = HoneypotAttackSerializer(attacks, many=True).data
+                    with open("/tmp/data.json", "w+") as data_file:
+                        data_file.write(json.dumps(data))
+                    tar.add(data_file.name, arcname=os.path.basename(data_file.name))
 
-        # # filename = obj.model_attribute_name.path
-        # response = FileResponse(open(f, 'rb'))
-        # return response
+                if join_checkbox:
+                    file = "/tmp/honeypot.pcap"
+                    os.system(
+                        "mergecap -w {name} {pcap_list}".format(
+                            name=file, pcap_list=" ".join(dumps_files)
+                        )
+                    )
+                    tar.add(file, arcname=os.path.basename(file))
+                else:
+                    for file in dumps_files:
+                        tar.add(file, arcname=os.path.basename(file))
+        if remove_checkbox:
+            pass
+        response = FileResponse(open(f.file.name, mode="rb"))
+        os.remove(f.file.name)
+        return response
