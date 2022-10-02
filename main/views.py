@@ -2,7 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from django.views import View
 from django.views.generic.base import TemplateView
-from main.models import HoneypotAttack, Honeypot
+from main.models import HoneypotAttack, Honeypot, AttackDump
 from django.shortcuts import get_object_or_404
 
 
@@ -27,7 +27,6 @@ class HoneypotView(TemplateView):
         context = super().get_context_data(**kwargs)
         # Add in a QuerySet of all the books
         honeypot = get_object_or_404(Honeypot, pk=kwargs["pk"])
-        context["honeypots"] = Honeypot.objects.all()
         attacks = HoneypotAttack.objects.filter(honeypot=honeypot)
 
         keys = set()
@@ -35,6 +34,11 @@ class HoneypotView(TemplateView):
             for key in attack.data:
                 keys.add(key)
 
+        dumps = AttackDump.objects.filter(honeypot=honeypot)
+
+        context["honeypots"] = Honeypot.objects.all()
+        context["honeypot"] = honeypot
+        context["dumps"] = dumps
         context["attacks"] = attacks
         context["data_keys"] = keys
         return context

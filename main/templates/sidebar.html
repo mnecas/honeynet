@@ -1,15 +1,17 @@
-<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
-  <div class="position-sticky pt-3">
-    <ul class="nav flex-column">
-      {{ test }}
-      {% for honeypot in honeypots %}
+<sidebar>
+  <div class="d-flex flex-column flex-shrink-0 p-3 text-white bg-dark" style="width: 280px; height: 100vh">
+    <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
+      <span class="fs-4">Honeypot</span>
+    </a>
+    <hr>
+    <ul class="nav nav-pills flex-column mb-auto">
+      {% for item in honeypots %}
       <li class="nav-item">
-        <a class="nav-link" href="/honeypots/{{ honeypot.id }}">
-          <span data-feather="home"></span>
-          {{ honeypot.name }}
+        <a href="/honeypots/{{item.id}}" class="nav-link text-white {% if item.id == honeypot.id %} active {% endif %}" aria-current="page">
+          {{ item.name }}
         </a>
       </li>
-      {% endfor %}
+      {% endfor%}
     </ul>
   </div>
-</nav>
+</sidebar>

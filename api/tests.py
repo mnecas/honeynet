@@ -76,7 +76,7 @@ class HoneypotPermissionsTests(APITestCase):
         # Test with incorrect token
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user2_token)
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
         # Test with missing token
         self.client.credentials()
