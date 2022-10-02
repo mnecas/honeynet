@@ -84,8 +84,8 @@ class HoneypotViewSet(ModelViewSet):
         fs = FileSystemStorage()
         file_path = os.path.join(str(honeypot.pk), file_obj.name)
         filename = fs.save(file_path, file_obj)
-        uploaded_file_url = fs.url(filename)
-        AttackDump.objects.get_or_create(path=uploaded_file_url, honeypot=honeypot)
+        # uploaded_file_url = fs.url(filename)
+        AttackDump.objects.get_or_create(path=filename, honeypot=honeypot)
         return Response(status=201)
 
     @action(detail=True, methods=["post"])
