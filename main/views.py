@@ -65,7 +65,7 @@ class ExportView(View):
                         data_file.write(json.dumps(data))
                     tar.add(data_file.name, arcname=os.path.basename(data_file.name))
 
-                if join_checkbox:
+                if join_checkbox and dumps:
                     file = "/tmp/honeypot.pcap"
                     os.system(
                         "mergecap -w {name} {pcap_list}".format(
@@ -73,11 +73,16 @@ class ExportView(View):
                         )
                     )
                     tar.add(file, arcname=os.path.basename(file))
+                    os.remove(file)
                 else:
                     for file in dumps_files:
                         tar.add(file, arcname=os.path.basename(file))
         if remove_checkbox:
-            pass
+            for attack in attacks:
+                attack.delete()
+            for dump in dumps:
+                dump.delete()
+                os.remove(fs.open(dump.path).name)
         response = FileResponse(open(f.file.name, mode="rb"))
         os.remove(f.file.name)
         return response
