@@ -13,9 +13,9 @@ honeypot_attack = HoneypotViewSet.as_view({"post": "attack"})
 
 urlpatterns = [
     path("honeypots/", honeypot_list, name="honeypots"),
-    path("honeypots/<int:pk>/", honeypot_detail, name="honeypot"),
-    path("honeypots/<int:pk>/upload", honeypot_upload, name="upload"),
-    path("honeypots/<int:pk>/attack", honeypot_attack, name="attack"),
+    path("honeypots/<uuid:pk>/", honeypot_detail, name="honeypot"),
+    path("honeypots/<uuid:pk>/upload", honeypot_upload, name="upload"),
+    path("honeypots/<uuid:pk>/attack", honeypot_attack, name="attack"),
     # path("api-auth/", include("rest_framework.urls")),
 ]
 

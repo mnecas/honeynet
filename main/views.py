@@ -9,6 +9,7 @@ from django.core.files.storage import FileSystemStorage
 from api.serializers import HoneypotAttackSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
+from main.management.commands.config import Command as HoneypotGroupInit
 import tarfile
 import os
 import json
@@ -29,8 +30,9 @@ class HoneypotAddView(TemplateView):
     template_name = "honeypot_form.html"
 
     def post(self, request):
+        if not Group.objects.filter(name="honeypot").exists():
+            HoneypotGroupInit().handle()
         honeypot_group = Group.objects.get(name="honeypot")
-
         user = User.objects.create_user(
             username="honeypot-{}-{}".format(
                 request.POST.get("type"), str(uuid.uuid4())
