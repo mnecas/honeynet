@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.storage import FileSystemStorage
 
 
 class Honeypot(models.Model):
@@ -39,3 +40,8 @@ class AttackDump(models.Model):
 
     def __str__(self):
         return str(self.honeypot) + " - " + self.path
+
+    def delete(self, *args, **kwargs):
+        fs = FileSystemStorage()
+        fs.delete(self.path)
+        super(AttackDump, self).delete(*args, **kwargs)

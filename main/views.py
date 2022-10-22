@@ -48,7 +48,6 @@ class HoneypotView(TemplateView):
 
 class ExportView(View):
     def post(self, request, pk):
-        remove_checkbox = request.POST.get("remove_checkbox")
         join_checkbox = request.POST.get("join_checkbox")
         dumps_ids = request.POST.getlist("dumps_checkboxes")
         attacks_ids = request.POST.getlist("attacks_checkboxes")
@@ -57,6 +56,7 @@ class ExportView(View):
         attacks = HoneypotAttack.objects.filter(honeypot=honeypot, pk__in=attacks_ids)
         dumps = AttackDump.objects.filter(honeypot=honeypot, pk__in=dumps_ids)
         dumps_files = list(map(lambda x: fs.open(x.path).name, dumps))
+        # Create temporary tar.gz file to which we will add all selected items
         with tempfile.NamedTemporaryFile("wb", suffix=".tar.gz", delete=False) as f:
             with tarfile.open(fileobj=f, mode="w:gz") as tar:
                 if attacks_ids:
@@ -67,6 +67,7 @@ class ExportView(View):
 
                 if join_checkbox and dumps:
                     file = "/tmp/honeypot.pcap"
+                    # Join all pcaps to one
                     os.system(
                         "mergecap -w {name} {pcap_list}".format(
                             name=file, pcap_list=" ".join(dumps_files)
@@ -77,12 +78,22 @@ class ExportView(View):
                 else:
                     for file in dumps_files:
                         tar.add(file, arcname=os.path.basename(file))
-        if remove_checkbox:
-            for attack in attacks:
-                attack.delete()
-            for dump in dumps:
-                dump.delete()
-                os.remove(fs.open(dump.path).name)
+        # Load the temporary to memory
         response = FileResponse(open(f.file.name, mode="rb"))
+        # Cleanup before sending the file
         os.remove(f.file.name)
         return response
+
+
+class DeleteData(View):
+    def post(self, request, pk):
+        dumps_ids = request.POST.getlist("dumps_checkboxes")
+        attacks_ids = request.POST.getlist("attacks_checkboxes")
+        honeypot = Honeypot.objects.get(pk=pk)
+        attacks = HoneypotAttack.objects.filter(honeypot=honeypot, pk__in=attacks_ids)
+        dumps = AttackDump.objects.filter(honeypot=honeypot, pk__in=dumps_ids)
+        for attack in attacks:
+            attack.delete()
+        for dump in dumps:
+            dump.delete()
+        return redirect(".")

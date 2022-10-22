@@ -1,94 +1,97 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="{{ honeypot.id }}/export" method="post">
-{% csrf_token %}
-<div class="m-4">
-  <h3>Specific data</h3>
-  <div class="table-responsive">
-    <table id="attack_table" class="table table-striped" >
-      <thead>
-        <tr>
-          <th scope="col" width="5px">Select</th>
-          <th scope="col" width="200px">Timestamp</th>
-          <th scope="col">Attacker(address - port - mac)</th>
-          {% for key in data_keys %}
-          <th scope="col">{{ key }}</th>
+<form action="export" method="post">
+  {% csrf_token %}
+  <div class="m-4">
+    <h3>Specific data</h3>
+    <div class="table-responsive">
+      <table id="attack_table" class="table table-striped" >
+        <thead>
+          <tr>
+            <th scope="col" width="5px">Select</th>
+            <th scope="col" width="200px">Timestamp</th>
+            <th scope="col">Attacker(address - port - mac)</th>
+            {% for key in data_keys %}
+            <th scope="col">{{ key }}</th>
+            {% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in attacks %}
+          <tr>
+            <td>
+              <input class="form-check-input" type="checkbox" name='attacks_checkboxes' value="{{ item.id }}" id="flexCheckDefault"/>
+            </td>
+            <td>{{ item.timestamp }}</td>
+            <td>{{ item.attacker }}</td>
+            {% for key in data_keys %}
+            <td>{{ item.data|get_item:key }}</td>
+            {% endfor %}
+          </tr>
           {% endfor %}
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in attacks %}
-        <tr>
-          <td>
-            <input class="form-check-input" type="checkbox" name='attacks_checkboxes' value="{{ item.id }}" id="flexCheckDefault"/>
-          </td>
-          <td>{{ item.timestamp }}</td>
-          <td>{{ item.attacker }}</td>
-          {% for key in data_keys %}
-          <td>{{ item.data|get_item:key }}</td>
+        </tbody>
+      </table>
+    </div>
+    <hr>
+    <h3>Dumps</h3>
+    <div class="table-responsive">
+      <table id="dump_table" class="table table-striped" >
+        <thead>
+          <tr>
+            <th scope="col" width="5px">Select</th>
+            <th scope="col" width="200px">Timestamp</th>
+            <th scope="col">Path</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in dumps %}
+          <tr>
+            <td><input class="form-check-input" type="checkbox" name='dumps_checkboxes' value="{{ item.id }}" id="flexCheckDefault"/></td>
+            <td>{{ item.timestamp }}</td>
+            <td>{{ item.path }}</td>
+          </tr>
           {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
   </div>
-  <hr>
-  <h3>Dumps</h3>
-  <div class="table-responsive">
-    <table id="dump_table" class="table table-striped" >
-      <thead>
-        <tr>
-          <th scope="col" width="5px">Select</th>
-          <th scope="col" width="200px">Timestamp</th>
-          <th scope="col">Path</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for item in dumps %}
-        <tr>
-          <td><input class="form-check-input" type="checkbox" name='dumps_checkboxes' value="{{ item.id }}" id="flexCheckDefault"/></td>
-          <td>{{ item.timestamp }}</td>
-          <td>{{ item.path }}</td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-</div>
 
 
-<div class="m-4">
-  <!-- Button trigger modal -->
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-    Export
-  </button>
+  <div class="m-4">
 
-  <!-- Modal -->
-  <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Export data</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div>
-            Remove after export:
-            <input class="form-check-input" type="checkbox" name='remove_checkbox' value="1" id="flexCheckDefault"/>
-            <br>
-            Join pcaps before export:
-            <input class="form-check-input" type="checkbox" name='join_checkbox' value="1" id="flexCheckDefault"/>
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+      Export
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLabel">Export data</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button id="export" type="submit" class="btn btn-primary">Export</button>
+          <div class="modal-body">
+            <div>
+              Join pcaps before export:
+              <input class="form-check-input" type="checkbox" name='join_checkbox' value="1" id="flexCheckDefault"/>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            <button id="export" type="submit" class="btn btn-primary">Export</button>
+          </div>
         </div>
       </div>
     </div>
+
+
+    <button class="btn btn-primary" type="submit" formaction="delete-data">
+      Remove
+    </button>
   </div>
-</div>
 </form>
 
 <link href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css" rel="stylesheet"/>

@@ -24,6 +24,14 @@ spec:
         env:
         - name: SERVER
           value: "honeypot-server-service:8000"
+        - name: HONEYPOT_NAME
+          value: "Test"
+        - name: HONEYPOT_TYPE
+          value: "general"
+        - name: ID
+          value: "10"
+        - name: DEBUG
+          value: "1"
 ---
 apiVersion: v1
 kind: Service
