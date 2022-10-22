@@ -2,4 +2,40 @@
 
 {% block content %}
 
+<div class="m-4">
+  <h3>Honeypots</h3>
+  <div class="table-responsive">
+    <table id="honeypot_table" class="table table-striped">
+      <thead>
+        <tr>
+          <th scope="col">Name</th>
+          <th scope="col">Type</th>
+          <th scope="col">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in honeypots %}
+        <tr>
+          <td>{{ item.name }}</td>
+          <td>{{ item.type }}</td>
+          <td><a href="honeypots/{{ item.pk }}/delete" class="btn btn-sm btn-outline-danger">Delete</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<link
+  href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"
+  rel="stylesheet"
+/>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+<script>
+  $(document).ready(function () {
+    $("#honeypot_table").DataTable();
+  });
+</script>
 {% endblock %}

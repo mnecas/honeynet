@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="m-4">
+
+  <form action="." method="post">
+    {% csrf_token %}
+    <div>
+      <b>Name: </b><input type="text" class="form-control" name="name"></input>
+      <b>Type: </b><input type="text" class="form-control" name="type"></input>
+      <button class="btn btn-outline-primary m-1" type="submit">Submit</button>
+    </div>
+
+  </form>
+</div>
+
+{% endblock %}

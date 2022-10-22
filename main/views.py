@@ -7,15 +7,42 @@ from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from django.core.files.storage import FileSystemStorage
 from api.serializers import HoneypotAttackSerializer
+from rest_framework.authtoken.models import Token
+from django.contrib.auth.models import User, Group
 import tarfile
-from io import BytesIO
 import os
 import json
 import tempfile
+import uuid
 
 
 class IndexView(TemplateView):
     template_name = "index.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["honeypots"] = Honeypot.objects.all()
+        return context
+
+
+class HoneypotAddView(TemplateView):
+    template_name = "honeypot_form.html"
+
+    def post(self, request):
+        honeypot_group = Group.objects.get(name="honeypot")
+
+        user = User.objects.create_user(
+            username="honeypot-{}-{}".format(
+                request.POST.get("type"), str(uuid.uuid4())
+            )
+        )
+        user.groups.add(honeypot_group)
+        Token.objects.create(user=user)
+
+        Honeypot.objects.create(
+            name=request.POST.get("name"), type=request.POST.get("type"), author=user
+        )
+        return redirect("/")
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -37,9 +64,10 @@ class HoneypotView(TemplateView):
                 keys.add(key)
 
         dumps = AttackDump.objects.filter(honeypot=honeypot)
-
+        token = Token.objects.get(user=honeypot.author)
         context["honeypots"] = Honeypot.objects.all()
         context["honeypot"] = honeypot
+        context["token"] = token
         context["dumps"] = dumps
         context["attacks"] = attacks
         context["data_keys"] = keys
@@ -86,6 +114,11 @@ class ExportView(View):
 
 
 class DeleteData(View):
+    def get(self, request, pk):
+        honeypot = Honeypot.objects.get(pk=pk)
+        honeypot.delete()
+        return redirect("/")
+
     def post(self, request, pk):
         dumps_ids = request.POST.getlist("dumps_checkboxes")
         attacks_ids = request.POST.getlist("attacks_checkboxes")

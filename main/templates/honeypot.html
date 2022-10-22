@@ -4,11 +4,12 @@
 
   <form action="edit" method="post">
     {% csrf_token %}
-    <div id="original-params" display>
-      <h2>{{ honeypot.name }}</h2>
-      <h3>type: {{ honeypot.type }} </h3>
+    <div id="original-params">
+      <h3>{{ honeypot.name }}</h3>
+      <h4>Type: {{ honeypot.type }}</h4>
+      <h4>Token: {{ token }}</h4>
     </div>
-    <div id="edit-params">
+    <div id="edit-params" style="display: none;">
       <b>Name: </b><input type="text" class="form-control" placeholder="{{ honeypot.name }}" name="name"></input>
       <b>Type: </b><input type="text" class="form-control" placeholder="{{ honeypot.type }}" name="type"></input>
       <button class="btn btn-outline-primary m-1" type="submit">Submit</button>
@@ -89,7 +90,6 @@
       </table>
     </div>
     <!-- Button trigger modal -->
-    <b>Data options:</b>
     <button
       type="button"
       class="btn btn-outline-primary m-1"
@@ -98,7 +98,7 @@
     >
       Export
     </button>
-    <button class="btn btn-outline-danger m-1" type="submit" formaction="delete-data">
+    <button class="btn btn-outline-danger m-1" type="submit" formaction="delete">
       Delete
     </button>
     <!-- Modal -->
@@ -157,12 +157,12 @@
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
 <script>
-  document.getElementById("edit-params").style.display = "none";
-  let i = 0;
   $(document).ready(function () {
     $("#attack_table").DataTable();
     $("#dump_table").DataTable();
   });
+
+  let i = 0;
   function showDiv() {
     if(i%2===0){
       document.getElementById("edit-params").style.display = "block";
