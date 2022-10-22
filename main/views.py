@@ -97,3 +97,16 @@ class DeleteData(View):
         for dump in dumps:
             dump.delete()
         return redirect(".")
+
+
+class EditHoneypot(View):
+    def post(self, request, pk):
+        name = request.POST.get("name")
+        type = request.POST.get("type")
+        honeypot = Honeypot.objects.get(pk=pk)
+        if name:
+            honeypot.name = name
+        if type:
+            honeypot.type = type
+        honeypot.save()
+        return redirect(".")
