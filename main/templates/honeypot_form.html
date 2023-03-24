@@ -1,16 +1,200 @@
 {% extends "base.html" %} {% block content %}
 
-<div class="m-4">
+{% load static %}
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-core.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-graph.min.js"></script>
+<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-data-adapter.min.js"></script>
 
-  <form action="." method="post">
+<style type="text/css">
+  #graphcontainer {
+    width: 100%;
+    height: 500px;
+    margin: 0;
+    padding: 0;
+
+  }
+</style>
+
+<div class="m-4">
+  {% comment %} <form action="." method="post"> {% endcomment %}
     {% csrf_token %}
     <div>
       <b>Name: </b><input type="text" class="form-control" name="name"></input>
-      <b>Type: </b><input type="text" class="form-control" name="type"></input>
-      <button class="btn btn-outline-primary m-1" type="submit">Submit</button>
+      {% comment %} <b>Type: </b><input type="text" class="form-control" name="type"></input> {% endcomment %}
+      <br>
+      <div id="graphcontainer"></div>
+      <br>
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
+        Add Honeypot
+      </button>
+      <button class="btn btn-outline-primary m-1" type="submit" onclick="test()">Submit</button>
     </div>
 
-  </form>
+  {% comment %} </form> {% endcomment %}
 </div>
 
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="honeypot-name" class="col-form-label">Honeypot name:</label>
+            <input type="text" class="form-control" id="honeypot-name">
+          </div>
+          <div class="mb-3">
+            <label for="message-text" class="col-form-label">Docker compose:</label>
+            <textarea class="form-control" id="message-text"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" onclick="addHoneypot()" data-bs-dismiss="modal">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+<script>
+  function test(){
+
+    var response = {data:[{"a":1, "b":2},{"a":2, "b":2}]}
+    json_response = JSON.stringify(response);
+
+    $.post('/test',json_response);
+  }
+
+  let data = {
+    "nodes": [
+      {
+        "id": "switch",
+        "name": "VSwitch",
+        "type": "switch",
+        "height": 50,
+        "fill": {
+          "src": "{% static 'main/switch.png' %}"
+        }
+      },
+      {
+        "id": "data",
+        "name": "Data",
+        "type": "data",
+        "height": 50,
+        "fill": {
+          "src": "{% static 'main/data.webp' %}"
+        }
+      },
+      {
+        "id": "mirroring",
+        "name": "Mirroring",
+        "type": "mirroring",
+        "height": 50,
+        "fill": {
+          "src": "{% static 'main/mirroring.webp' %}"
+        }
+      }
+    ],
+    "edges": [
+      {
+        "from": "data",
+        "to": "switch"
+      },
+      {
+        "from": "mirroring",
+        "to": "switch"
+      }
+    ]
+  }
+  renderGraph(data);
+
+  function renderGraph(data){
+    var chart = anychart.graph(data);
+    var nodes = chart.nodes();
+    // set the size of nodes
+    nodes.normal().height(30);
+    nodes.hovered().height(45);
+    nodes.selected().height(45);
+
+    // set the stroke of nodes
+    nodes.normal().stroke(null);
+    nodes.hovered().stroke("#333333", 3);
+    nodes.selected().stroke("#333333", 3);
+
+    // enable the labels of nodes
+    chart.nodes().labels().enabled(true);
+
+    // configure the labels of nodes
+    chart.nodes().labels().format("{%name}");
+    chart.nodes().labels().fontSize(12);
+    chart.nodes().labels().fontWeight(600);
+    // draw the chart
+    chart.container("graphcontainer").draw();
+
+    // onclick
+    chart.listen('click', function(e) {
+      var tag = e.domTarget.tag;
+      if (tag) {
+        console.log(`Clicked ${tag.type} with ID ${tag.id}`);
+
+        if (tag.type === 'node') {
+          // get url from data directly
+          var url;
+          for (var i = 0; i < data.nodes.length; i++) {
+            if (data.nodes[i].id === tag.id) {
+              url = data.nodes[i].url;
+
+              let myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {});
+              myModal.show();
+              break;
+            }
+          }
+        }
+      }
+    });
+  }
+  function addHoneypot(){
+    let honeypotName = document.getElementById("honeypot-name").value;
+    document.getElementById("honeypot-name").value = "";
+    let id = Math.floor(Math.random() * 100) + 1;
+    let honeypotObj = {
+      "id":honeypotName + id,
+      "name": honeypotName,
+      "height": 50,
+      "type": "honeypot",
+      "fill": {
+        "src": "{% static 'main/favicon.ico' %}"
+      }
+    }
+    let honeypotConnectionObj = {
+      "from": "switch",
+      "to": honeypotName + id
+    }
+    // Deepcopy
+    data=JSON.parse(JSON.stringify(data))
+    data["nodes"].push(honeypotObj);
+    data["edges"].push(honeypotConnectionObj);
+    var newData = {
+      "nodes":[honeypotObj],
+      "edges":[honeypotConnectionObj]
+    }
+    // cleanup previous graph
+    const parent = document.getElementById("graphcontainer")
+    while (parent.firstChild) {
+        parent.firstChild.remove()
+    }
+    renderGraph(data);
+
+    //chart.data(data);
+  }
+  function runHoneynet(){
+  }
+</script>
 {% endblock %}

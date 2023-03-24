@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-
 <div class="m-4">
-  <h3>Honeypots</h3>
+  <h3>Honeynets</h3>
   <div class="table-responsive">
     <table id="honeypot_table" class="table table-striped">
       <thead>
@@ -33,9 +32,10 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
-<script>
+<script type="text/javascript">
   $(document).ready(function () {
     $("#honeypot_table").DataTable();
   });
 </script>
+
 {% endblock %}

@@ -10,6 +10,8 @@ from api.serializers import HoneypotAttackSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
 from main.management.commands.config import Command as HoneypotGroupInit
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 import tarfile
 import os
 import json
