@@ -16,21 +16,17 @@
 </style>
 
 <div class="m-4">
-  {% comment %} <form action="." method="post"> {% endcomment %}
-    {% csrf_token %}
-    <div>
-      <b>Name: </b><input type="text" class="form-control" name="name"></input>
-      {% comment %} <b>Type: </b><input type="text" class="form-control" name="type"></input> {% endcomment %}
-      <br>
-      <div id="graphcontainer"></div>
-      <br>
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
-        Add Honeypot
-      </button>
-      <button class="btn btn-outline-primary m-1" type="submit" onclick="test()">Submit</button>
-    </div>
-
-  {% comment %} </form> {% endcomment %}
+  <div>
+    <b>Name: </b><input type="text" class="form-control" name="name"></input>
+    {% comment %} <b>Type: </b><input type="text" class="form-control" name="type"></input> {% endcomment %}
+    <br>
+    <div id="graphcontainer"></div>
+    <br>
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data->
+      Add Honeypot
+    </button>
+    <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()">Submit</button>
+  </div>
 </div>
 
 <!-- Modal -->
@@ -43,13 +39,14 @@
       </div>
       <div class="modal-body">
         <form>
+          <input id="honeypot-id" type="hidden">
           <div class="mb-3">
             <label for="honeypot-name" class="col-form-label">Honeypot name:</label>
             <input type="text" class="form-control" id="honeypot-name">
           </div>
           <div class="mb-3">
-            <label for="message-text" class="col-form-label">Docker compose:</label>
-            <textarea class="form-control" id="message-text"></textarea>
+            <label for="docker-compose" class="col-form-label">Docker compose:</label>
+            <textarea class="form-control" id="docker-compose"></textarea>
           </div>
         </form>
       </div>
@@ -60,17 +57,18 @@
     </div>
   </div>
 </div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+<script src="{% static 'main.js' %}"></script>
 
 <script>
-  function test(){
-    let data = new FormData();
-    data.append("csrfmiddlewaretoken", '{{csrf_token}}');
-    data.append("data",JSON.stringify(graphdata));
-    axios.post('/test/', data)
-     .then(res => alert("Form Submitted"))
-     .catch(errors => console.log(errors))
-  }
+  $('#exampleModal').on('hidden.bs.modal', function () {
+    list = ["honeypot-name","docker-compose","honeypot-id"]
+    for (let i = 0; i < list.length; i++) {
+      document.getElementById(list[i]).value = "";
+    }
+  })
 
   let graphdata = {
     "nodes": [
@@ -78,6 +76,7 @@
         "id": "switch",
         "name": "VSwitch",
         "type": "switch",
+        "compose": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/switch.png' %}"
@@ -87,6 +86,7 @@
         "id": "data",
         "name": "Data",
         "type": "data",
+        "compose": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/data.webp' %}"
@@ -96,6 +96,7 @@
         "id": "mirroring",
         "name": "Mirroring",
         "type": "mirroring",
+        "compose": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/mirroring.webp' %}"
@@ -114,87 +115,5 @@
     ]
   }
   renderGraph(graphdata);
-
-  function renderGraph(graphdata){
-    var chart = anychart.graph(graphdata);
-    var nodes = chart.nodes();
-    // set the size of nodes
-    nodes.normal().height(30);
-    nodes.hovered().height(45);
-    nodes.selected().height(45);
-
-    // set the stroke of nodes
-    nodes.normal().stroke(null);
-    nodes.hovered().stroke("#333333", 3);
-    nodes.selected().stroke("#333333", 3);
-
-    // enable the labels of nodes
-    chart.nodes().labels().enabled(true);
-
-    // configure the labels of nodes
-    chart.nodes().labels().format("{%name}");
-    chart.nodes().labels().fontSize(12);
-    chart.nodes().labels().fontWeight(600);
-    // draw the chart
-    chart.container("graphcontainer").draw();
-
-    // onclick
-    chart.listen('click', function(e) {
-      var tag = e.domTarget.tag;
-      if (tag) {
-        console.log(`Clicked ${tag.type} with ID ${tag.id}`);
-
-        if (tag.type === 'node') {
-          // get url from data directly
-          var url;
-          for (var i = 0; i < graphdata.nodes.length; i++) {
-            if (graphdata.nodes[i].id === tag.id) {
-              url = graphdata.nodes[i].url;
-
-              let myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {});
-              myModal.show();
-              break;
-            }
-          }
-        }
-      }
-    });
-  }
-  function addHoneypot(){
-    let honeypotName = document.getElementById("honeypot-name").value;
-    document.getElementById("honeypot-name").value = "";
-    let id = Math.floor(Math.random() * 100) + 1;
-    let honeypotObj = {
-      "id":honeypotName + id,
-      "name": honeypotName,
-      "height": 50,
-      "type": "honeypot",
-      "fill": {
-        "src": "{% static 'main/favicon.ico' %}"
-      }
-    }
-    let honeypotConnectionObj = {
-      "from": "switch",
-      "to": honeypotName + id
-    }
-    // Deepcopy
-    data=JSON.parse(JSON.stringify(data))
-    data["nodes"].push(honeypotObj);
-    data["edges"].push(honeypotConnectionObj);
-    var newData = {
-      "nodes":[honeypotObj],
-      "edges":[honeypotConnectionObj]
-    }
-    // cleanup previous graph
-    const parent = document.getElementById("graphcontainer")
-    while (parent.firstChild) {
-        parent.firstChild.remove()
-    }
-    renderGraph(data);
-
-    //chart.data(data);
-  }
-  function runHoneynet(){
-  }
 </script>
 {% endblock %}
