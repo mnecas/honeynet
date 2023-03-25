@@ -13,40 +13,83 @@
     padding: 0;
 
   }
+  #spinner {
+    display: none;
+  }
 </style>
 
 <div class="m-4">
   <div>
-    <b>Name: </b><input type="text" class="form-control" name="name"></input>
+    <div class="col">
+      <b>Name:</b><input type="text" class="form-control" id="name"></input>
+    </div>
+    <div class="row">
+      <div class="col">
+        <b>ESXi hostname:</b><input type="text" class="form-control" id="hostname"></input>
+      </div>
+      <div class="col">
+        <b>ESXi username:</b><input type="text" class="form-control" id="username"></input>
+      </div>
+      <div class="col">
+        <b>ESXi password:</b><input type="password" class="form-control" id="password"></input>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <b>Physical nic:</b><input type="text" class="form-control" id="nic"></input>
+      </div>
+
+      <div class="col">
+        <b>Switch name:</b><input type="text" class="form-control" id="switch"></input>
+      </div>
+    </div>
     {% comment %} <b>Type: </b><input type="text" class="form-control" name="type"></input> {% endcomment %}
     <br>
     <div id="graphcontainer"></div>
     <br>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data->
-      Add Honeypot
-    </button>
-    <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()">Submit</button>
+    <div class="me-auto">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="add_honeypot_btn">
+        Add Honeypot
+      </button>
+      <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()" id='main_submit_btn'>Submit
+        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id='spinner'></span>
+      </button>
+    </div>
   </div>
 </div>
+
 
 <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <h5 class="modal-title" id="exampleModalLabel">Create honeypot</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
         <form>
-          <input id="honeypot-id" type="hidden">
+          <input id="honeypot_id" type="hidden">
           <div class="mb-3">
-            <label for="honeypot-name" class="col-form-label">Honeypot name:</label>
-            <input type="text" class="form-control" id="honeypot-name">
+            <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
+            <input type="text" class="form-control" id="honeypot_name">
           </div>
           <div class="mb-3">
-            <label for="docker-compose" class="col-form-label">Docker compose:</label>
-            <textarea class="form-control" id="docker-compose"></textarea>
+            <label for="docker_compose" class="col-form-label"><b>Docker compose:</b></label>
+            <textarea class="form-control" id="docker_compose"></textarea>
+          </div>
+          <hr>
+          <div class="mb-3">
+            <label for="ovf" class="col-form-label"><b>OVF:</b></label>
+            <input type="text" class="form-control" id="ovf">
+          </div>
+          <div class="row">
+            <div class="col">
+              <b>VM username:</b><input type="text" class="form-control" name="name" id="vm_username"></input>
+            </div>
+            <div class="col">
+              <b>VM password:</b><input type="password" class="form-control" name="name" id="vm_password"></input>
+            </div>
           </div>
         </form>
       </div>
@@ -57,6 +100,7 @@
     </div>
   </div>
 </div>
+<div id="demo"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
@@ -64,7 +108,7 @@
 
 <script>
   $('#exampleModal').on('hidden.bs.modal', function () {
-    list = ["honeypot-name","docker-compose","honeypot-id"]
+    list = ["honeypot_name","docker_compose","honeypot_id","ovf","vm_username","vm_password"]
     for (let i = 0; i < list.length; i++) {
       document.getElementById(list[i]).value = "";
     }
@@ -76,7 +120,6 @@
         "id": "switch",
         "name": "VSwitch",
         "type": "switch",
-        "compose": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/switch.png' %}"
@@ -86,7 +129,6 @@
         "id": "data",
         "name": "Data",
         "type": "data",
-        "compose": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/data.webp' %}"
@@ -97,6 +139,9 @@
         "name": "Mirroring",
         "type": "mirroring",
         "compose": "",
+        "ovf": "",
+        "vm_username": "",
+        "vm_password": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/mirroring.webp' %}"
@@ -115,5 +160,38 @@
     ]
   }
   renderGraph(graphdata);
+  function sendData(){
+      toggle(false);
+
+      let data = new FormData();
+      data.append("honeypots",JSON.stringify(graphdata["nodes"].filter(h => h.type == 'honeypot')));
+      data.append("name",document.getElementById("name").value);
+      data.append("hostname",document.getElementById("hostname").value);
+      data.append("username",document.getElementById("username").value);
+      data.append("password",document.getElementById("password").value);
+      data.append("nic",document.getElementById("nic").value);
+      data.append("switch",document.getElementById("switch").value);
+      data.append("csrfmiddlewaretoken", '{{csrf_token}}');
+      axios.post('/addhoneynet/', data)
+          .then(res =>{
+              toggle(true);
+              if(res.data.rc!=0){
+                console.log(res.data.stdout);
+                alert("Failed! Please checkout console.")
+              }
+          })
+          .catch(errors => console.log(errors))
+  }
+
+  function toggle(state) {
+    document.getElementById('main_submit_btn').disabled=!state;
+    document.getElementById('add_honeypot_btn').disabled=!state;
+    x=document.getElementById('spinner')
+    if (!state) {
+      x.style.display = "inline-block";
+    } else {
+      x.style.display = "none";
+    }
+  }
 </script>
 {% endblock %}

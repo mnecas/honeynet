@@ -1,9 +1,12 @@
 
-function buildHoneypotObj(id, name, compose){
+function buildHoneypotObj(id, name, compose,ovf,vm_username,vm_password){
   return {
     "id":id,
     "name": name,
     "compose": compose,
+    "ovf": ovf,
+    "vm_username": vm_username,
+    "vm_password": vm_password,
     "height": 50,
     "type": "honeypot",
     "fill": {
@@ -13,13 +16,16 @@ function buildHoneypotObj(id, name, compose){
 }
 
 function addHoneypot(){
-  let honeypotName = document.getElementById("honeypot-name").value;
-  let compose = document.getElementById("docker-compose").value;
-  let honeypotId = document.getElementById("honeypot-id").value;
+  let honeypotName = document.getElementById("honeypot_name").value;
+  let compose = document.getElementById("docker_compose").value;
+  let honeypotId = document.getElementById("honeypot_id").value;
+  let ovf = document.getElementById("ovf").value
+  let vm_username = document.getElementById("vm_username").value;
+  let vm_password = document.getElementById("vm_password").value;
   // Add
   if(honeypotId == ""){
     let id = Math.floor(Math.random() * 1000) + 1;
-    let honeypotObj = buildHoneypotObj(id, honeypotName, compose)
+    let honeypotObj = buildHoneypotObj(id, honeypotName, compose,ovf,vm_username,vm_password)
     let honeypotConnectionObj = {
       "from": "switch",
       "to": id
@@ -37,6 +43,9 @@ function addHoneypot(){
       if(nodes[i].id == honeypotId){
         data["nodes"][i]["name"] = honeypotName;
         data["nodes"][i]["compose"] = compose;
+        data["nodes"][i]["ovf"].value = ovf
+        data["nodes"][i]["vm_username"].value = vm_username
+        data["nodes"][i]["vm_password"].value = vm_password
         break;
       }
     }
@@ -79,10 +88,13 @@ function renderGraph(graphdata){
       if (tag) {
         if (tag.type === 'node') {
           for (var i = 0; i < graphdata.nodes.length; i++) {
-            if (graphdata.nodes[i].id == tag.id) {
-              document.getElementById("honeypot-name").value = graphdata.nodes[i].name
-              document.getElementById("docker-compose").value = graphdata.nodes[i].compose
-              document.getElementById("honeypot-id").value = graphdata.nodes[i].id
+            if (graphdata.nodes[i].id == tag.id  && graphdata.nodes[i].type == "honeypot") {
+              document.getElementById("honeypot_name").value = graphdata.nodes[i].name
+              document.getElementById("docker_compose").value = graphdata.nodes[i].compose
+              document.getElementById("honeypot_id").value = graphdata.nodes[i].id
+              document.getElementById("ovf").value = graphdata.nodes[i].ovf
+              document.getElementById("vm_username").value = graphdata.nodes[i].vm_username
+              document.getElementById("vm_password").value = graphdata.nodes[i].vm_password
               let myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {});
               myModal.show();
               break;
@@ -93,12 +105,3 @@ function renderGraph(graphdata){
     });
 
   }
-
-function sendData(){
-    let data = new FormData();
-    data.append("csrfmiddlewaretoken", '{{csrf_token}}');
-    data.append("data",JSON.stringify(graphdata));
-    axios.post('/test/', data)
-        .then(res => alert("Form Submitted"))
-        .catch(errors => console.log(errors))
-}

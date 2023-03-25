@@ -1,0 +1,4 @@
+default_vms:
+  - name: mirroring
+    portgroup_name: honeypot-promisc
+    compose_file: files//docker-compose.yml.j2

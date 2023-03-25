@@ -10,24 +10,23 @@ from rest_framework.authtoken.models import Token
 class HoneypotCreationTest(APITestCase):
     def test_create_honeypot(self):
         url = reverse("honeypots")
-        data = {"name": "test", "type": "general"}
+        data = {"name": "test"}
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Honeypot.objects.count(), 1)
         self.assertEqual(Honeypot.objects.get().name, "test")
-        self.assertEqual(Honeypot.objects.get().type, "general")
 
 
 class HoneypotPermissionsTests(APITestCase):
     def setUp(self):
         url = reverse("honeypots")
 
-        data = {"name": "test1", "type": "general"}
+        data = {"name": "test1"}
         resp = json.loads(self.client.post(url, data, format="json").content)
         self.user1_token = resp["token"]
         self.user1_id = resp["id"]
 
-        data = {"name": "test2", "type": "general"}
+        data = {"name": "test2"}
         resp = json.loads(self.client.post(url, data, format="json").content)
         self.user2_token = resp["token"]
         self.user2_id = resp["id"]

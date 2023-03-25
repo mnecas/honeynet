@@ -1,0 +1,10 @@
+---
+- name: Deploy honeypots
+  hosts: localhost
+
+  # vars_files:
+  #   # Contains encrypted `vcenter_password` varibale using ansible-vault
+  #   - passwords.yml
+
+  roles:
+    - deployment

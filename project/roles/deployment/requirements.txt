@@ -1,0 +1,3 @@
+pyVim
+PyVmomi
+# docker>=5.0.0

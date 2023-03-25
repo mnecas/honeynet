@@ -1,5 +1,5 @@
 from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic.base import TemplateView
 from main.models import HoneypotAttack, Honeypot, AttackDump
@@ -17,7 +17,8 @@ import os
 import json
 import tempfile
 import uuid
-
+import shutil
+import yaml
 
 class IndexView(TemplateView):
     template_name = "index.html"
@@ -148,8 +149,74 @@ class EditHoneypot(View):
         honeypot.save()
         return redirect(".")
 
-class TestView(View):
+class HoneynetAddView(View):
     def post(self, request):
-        print(request.POST)
+        self.data = request.POST
+        self.nodes = json.loads(request.POST["honeypots"])
+        self.generate_ansible_runner_dir()
+        self.start_palybook()
+        rc = self.get_playbook_status_code()
+        if rc != 0:
+            return JsonResponse({"rc": rc, "stdout": self.get_playbook_stdout()})
+        return JsonResponse({"rc": rc})
 
-        return redirect(".")
+    def generate_ansible_runner_dir(self):
+        self.id = str(uuid.uuid4())
+        self.path = os.path.join("/tmp", self.id)
+        print("Creating path '{}'".format(self.path))
+        os.mkdir(self.path)
+
+        shutil.copytree('project', self.path, dirs_exist_ok=True)
+
+        env_path = os.path.join(self.path, "env")
+        os.mkdir(env_path)
+
+        self.generate_env_vars(env_path)
+        self.store_docker_compose()
+
+    def generate_env_vars(self, path):
+        path = os.path.join(path, "extravars")
+        with open(path, "w+") as f:
+            f.write(yaml.dump(self.format_data(), default_flow_style=False))
+
+    def store_docker_compose(self):
+        for node in self.nodes:
+            compose = node['compose']
+            if compose != "":
+                path = self.get_docker_compose_path(node)
+                os.mkdir(path)
+                with open(os.path.join(path, "docker-compose.yml"), "w+") as f:
+                    f.write(compose)
+
+    def get_docker_compose_path(self, node):
+        return os.path.join(self.path, str(node.get('id')))
+
+    def get_playbook_status_code(self):
+        with open(f"{self.path}/artifacts/{self.id}/rc") as f:
+            return int(f.read())
+
+    def get_playbook_stdout(self):
+        with open(f"{self.path}/artifacts/{self.id}/stdout") as f:
+            return f.read()
+
+    def start_palybook(self):
+        os.system(f"ansible-runner run {self.path} -p deployment.yml -i {self.id}")
+
+    def format_data(self):
+        return {
+            "esxi_hostname": self.data['hostname'],
+            "esxi_username": self.data['username'],
+            "esxi_password": self.data['password'],
+            "nic_name": self.data['nic'],
+            "switch_name": self.data['switch'],
+            "vms": [
+                {
+                    "name": node["name"],
+                    "vmware_vm_user": node.get("vm_username", None),
+                    "vmware_vm_pass": node.get("vm_password", None),
+                    "portgroup_name": "honeypots-portgroup",
+                    "compose_file": os.path.join(self.get_docker_compose_path(node), "docker-compose.yml")
+                } for node in self.nodes
+            ]
+        }
+

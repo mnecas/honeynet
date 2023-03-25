@@ -1,0 +1,11 @@
+version: '3.4'
+services:
+{% for item in honeypots %}
+  honeypot:
+    image: quay.io/mnecas0/honeypot-base:latest
+    environment:
+      SERVER: '{{ data_vm_ip }}'
+      DEBUG: 1
+      TCPDUMP_FILTER: "host {{ item }}"
+    network_mode: host
+{% endfor %}

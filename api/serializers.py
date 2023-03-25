@@ -6,7 +6,7 @@ from main.models import Honeypot, Attacker, HoneypotAttack
 class HoneypotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Honeypot
-        fields = ["id", "name", "type"]
+        fields = ["id", "name"]
 
 
 class AttackerSerializer(serializers.ModelSerializer):
