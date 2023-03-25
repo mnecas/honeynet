@@ -147,3 +147,9 @@ class EditHoneypot(View):
             honeypot.type = type
         honeypot.save()
         return redirect(".")
+
+class TestView(View):
+    def post(self, request):
+        print(request.POST)
+
+        return redirect(".")

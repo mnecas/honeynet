@@ -6,10 +6,12 @@ from main.views import (
     DeleteData,
     EditHoneypot,
     HoneypotAddView,
+    TestView,
 )
 
 urlpatterns = [
     path("add/", HoneypotAddView.as_view()),
+    path("test/", TestView.as_view()),
     path("honeypots/<uuid:pk>/", HoneypotView.as_view()),
     path("honeypots/<uuid:pk>/delete", DeleteData.as_view()),
     path("honeypots/<uuid:pk>/export", ExportView.as_view()),

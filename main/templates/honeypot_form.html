@@ -60,19 +60,19 @@
     </div>
   </div>
 </div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 
 <script>
   function test(){
-
-    var response = {data:[{"a":1, "b":2},{"a":2, "b":2}]}
-    json_response = JSON.stringify(response);
-
-    $.post('/test',json_response);
+    let data = new FormData();
+    data.append("csrfmiddlewaretoken", '{{csrf_token}}');
+    data.append("data",JSON.stringify(graphdata));
+    axios.post('/test/', data)
+     .then(res => alert("Form Submitted"))
+     .catch(errors => console.log(errors))
   }
 
-  let data = {
+  let graphdata = {
     "nodes": [
       {
         "id": "switch",
@@ -113,10 +113,10 @@
       }
     ]
   }
-  renderGraph(data);
+  renderGraph(graphdata);
 
-  function renderGraph(data){
-    var chart = anychart.graph(data);
+  function renderGraph(graphdata){
+    var chart = anychart.graph(graphdata);
     var nodes = chart.nodes();
     // set the size of nodes
     nodes.normal().height(30);
@@ -147,9 +147,9 @@
         if (tag.type === 'node') {
           // get url from data directly
           var url;
-          for (var i = 0; i < data.nodes.length; i++) {
-            if (data.nodes[i].id === tag.id) {
-              url = data.nodes[i].url;
+          for (var i = 0; i < graphdata.nodes.length; i++) {
+            if (graphdata.nodes[i].id === tag.id) {
+              url = graphdata.nodes[i].url;
 
               let myModal = new bootstrap.Modal(document.getElementById('exampleModal'), {});
               myModal.show();
