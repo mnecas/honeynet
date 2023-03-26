@@ -221,7 +221,7 @@ class StartAnsible:
     def start_palybook(self, playbook):
         self.generate_ansible_runner_dir()
         os.system(
-            f"ansible-runner run {self.path} -p {playbook} -i {self.id} -q")
+            f"ansible-runner run {self.path} -p {playbook} -i {self.id}")
         return self.get_playbook_status_code()
 
     def format_data(self):
@@ -234,10 +234,12 @@ class StartAnsible:
             "vms": [
                 {
                     "name": honeypot.name,
+                    "token": str(Token.objects.get(user=honeypot.author)),
+                    # "filter": honeypot.filter,
                     "vmware_vm_user": honeypot.username,
                     "vmware_vm_pass": honeypot.password,
                     "portgroup_name": "honeypots-portgroup",
-                    "compose_file": os.path.join(os.path.join(self.path, str(honeypot.id)), "docker-compose.yml")
+                    "compose_file": os.path.join(os.path.join(self.path, str(honeypot.id)), "docker-compose.yml") if honeypot.compose else None
                 } for honeypot in self.honeypots
             ]
         }

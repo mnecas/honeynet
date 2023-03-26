@@ -1,6 +1,4 @@
-{% extends "base.html" %}
-
-{% block content %}
+{% extends "base.html" %} {% block content %}
 <style type="text/css">
   .spinner {
     display: none;
@@ -22,16 +20,39 @@
         <tr>
           <td>{{ item.name }}</td>
           <td>
-            <button class="btn btn-sm btn-success" id="startbtn_{{ item.id }}" onclick="sendData('{{ item.id }}','start')">
+            <button
+              class="btn btn-sm btn-success"
+              id="startbtn_{{ item.id }}"
+              onclick="sendData('{{ item.id }}','start')"
+            >
               Start
-              <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true" id='startspinner_{{ item.id }}'></span>
+              <span
+                class="spinner-border spinner-border-sm spinner"
+                role="status"
+                aria-hidden="true"
+                id="startspinner_{{ item.id }}"
+              ></span>
             </button>
           </td>
           <td>
-            <a type="button" href="honeynets/{{ item.pk }}" class="btn btn-sm btn-info text-white">Edit</a>
-            <button id="deletebtn_{{ item.id }}" onclick="sendData('{{ item.id }}','delete')" class="btn btn-sm btn-danger">
+            <a
+              type="button"
+              href="honeynets/{{ item.pk }}"
+              class="btn btn-sm btn-info text-white"
+              >Edit</a
+            >
+            <button
+              id="deletebtn_{{ item.id }}"
+              onclick="sendData('{{ item.id }}','delete')"
+              class="btn btn-sm btn-danger"
+            >
               Delete
-              <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true" id='deletespinner_{{ item.id }}'></span>
+              <span
+                class="spinner-border spinner-border-sm spinner"
+                role="status"
+                aria-hidden="true"
+                id="deletespinner_{{ item.id }}"
+              ></span>
             </button>
           </td>
         </tr>
@@ -53,21 +74,22 @@
     $("#honeypot_table").DataTable();
   });
 
-  function sendData(id,endpoint){
-    toggle(id,endpoint, false);
-    axios.get('/honeynets/'+id+'/'+endpoint)
-        .then(res =>{
-          toggle(id,true);
-          if(res['data']['rc']!=0){
-            alert("Failed. Please checkout console")
-            console.log(res['data']['stdout'])
-          }
-        })
-        .catch(errors => console.log(errors))
+  function sendData(id, endpoint) {
+    toggle(id, endpoint, false);
+    axios
+      .get("/honeynets/" + id + "/" + endpoint)
+      .then((res) => {
+        toggle(id, endpoint, true);
+        if (res["data"]["rc"] != 0) {
+          alert("Failed. Please checkout console");
+          console.log(res["data"]["stdout"]);
+        }
+      })
+      .catch((errors) => console.log(errors));
   }
-  function toggle(id,endpoint, state) {
-    document.getElementById(endpoint+'btn_'+id).disabled=!state;
-    x=document.getElementById(endpoint+'spinner_'+id)
+  function toggle(id, endpoint, state) {
+    document.getElementById(endpoint + "btn_" + id).disabled = !state;
+    x = document.getElementById(endpoint + "spinner_" + id);
     if (!state) {
       x.style.display = "inline-block";
     } else {
