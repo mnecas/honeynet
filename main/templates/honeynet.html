@@ -13,9 +13,6 @@
     padding: 0;
 
   }
-  #spinner {
-    display: none;
-  }
 </style>
 
 <div class="m-4">
@@ -28,7 +25,7 @@
         <b>ESXi hostname:</b><input type="text" class="form-control" id="hostname"></input>
       </div>
       <div class="col">
-        <b>ESXi username:</b><input type="text" class="form-control" id="username"></input>
+        <b>ESXi username:</b><input type="text" class="form-control" id="username" value="{{ honeynet. }}"></input>
       </div>
       <div class="col">
         <b>ESXi password:</b><input type="password" class="form-control" id="password"></input>
@@ -43,7 +40,6 @@
         <b>Switch name:</b><input type="text" class="form-control" id="switch"></input>
       </div>
     </div>
-    {% comment %} <b>Type: </b><input type="text" class="form-control" name="type"></input> {% endcomment %}
     <br>
     <div id="graphcontainer"></div>
     <br>
@@ -51,9 +47,7 @@
       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="add_honeypot_btn">
         Add Honeypot
       </button>
-      <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()" id='main_submit_btn'>Submit
-        <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true" id='spinner'></span>
-      </button>
+      <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()" id='main_submit_btn'>Submit</button>
     </div>
   </div>
 </div>
@@ -103,7 +97,6 @@
 <div id="demo"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
 <script src="{% static 'main.js' %}"></script>
 
 <script>
@@ -147,6 +140,21 @@
           "src": "{% static 'main/mirroring.webp' %}"
         }
       }
+      {% for honeypot in honeypots %}
+      ,{
+        "id": "{{ honeypot.id }}",
+        "name": "{{ honeypot.name }}",
+        "type": "honeypot",
+        "compose": "{{ honeypot.compose }}",
+        "ovf": "{{ honeypot.ovf }}",
+        "vm_username": "{{ honeypot.vm_username }}",
+        "vm_password": "{{ honeypot.vm_password }}",
+        "height": 50,
+        "fill": {
+          "src": "{% static 'main/favicon.ico' %}"
+        }
+      }
+      {% endfor %}
     ],
     "edges": [
       {
@@ -157,11 +165,17 @@
         "from": "mirroring",
         "to": "switch"
       }
+      {% for honeypot in honeypots %}
+      ,{
+        "from": "{{ honeypot.id }}",
+        "to": "switch"
+      }
+      {% endfor %}
     ]
   }
   renderGraph(graphdata);
   function sendData(){
-      toggle(false);
+      //toggle(false);
 
       let data = new FormData();
       data.append("honeypots",JSON.stringify(graphdata["nodes"].filter(h => h.type == 'honeypot')));
@@ -172,26 +186,11 @@
       data.append("nic",document.getElementById("nic").value);
       data.append("switch",document.getElementById("switch").value);
       data.append("csrfmiddlewaretoken", '{{csrf_token}}');
-      axios.post('/addhoneynet/', data)
+      axios.post('/honeynets/', data)
           .then(res =>{
-              toggle(true);
-              if(res.data.rc!=0){
-                console.log(res.data.stdout);
-                alert("Failed! Please checkout console.")
-              }
+            window.location.replace("/");
           })
           .catch(errors => console.log(errors))
-  }
-
-  function toggle(state) {
-    document.getElementById('main_submit_btn').disabled=!state;
-    document.getElementById('add_honeypot_btn').disabled=!state;
-    x=document.getElementById('spinner')
-    if (!state) {
-      x.style.display = "inline-block";
-    } else {
-      x.style.display = "none";
-    }
   }
 </script>
 {% endblock %}

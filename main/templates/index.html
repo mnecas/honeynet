@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style type="text/css">
+  .spinner {
+    display: none;
+  }
+</style>
 <div class="m-4">
   <h3>Honeynets</h3>
   <div class="table-responsive">
@@ -8,16 +13,24 @@
       <thead>
         <tr>
           <th scope="col">Name</th>
-          <th scope="col">Type</th>
-          <th scope="col">Action</th>
+          <th scope="col">Deployment</th>
+          <th scope="col">Actions</th>
         </tr>
       </thead>
       <tbody>
-        {% for item in honeypots %}
+        {% for item in honeynets %}
         <tr>
           <td>{{ item.name }}</td>
-          <td>{{ item.type }}</td>
-          <td><a href="honeypots/{{ item.pk }}/delete" class="btn btn-sm btn-outline-danger">Delete</a></td>
+          <td>
+            <button class="btn btn-sm btn-success" id="startbtn_{{ item.id }}" onclick="sendData('{{ item.id }}')">
+              Start
+              <span class="spinner-border spinner-border-sm spinner" role="status" aria-hidden="true" id='spinner_{{ item.id }}'></span>
+            </button>
+          </td>
+          <td>
+            <a type="button" href="honeynets/{{ item.pk }}" class="btn btn-sm btn-info text-white">Edit</a>
+            <a type="button" href="honeynets/{{ item.pk }}/delete" class="btn btn-sm btn-danger">Delete</a>
+          </td>
         </tr>
         {% endfor %}
       </tbody>
@@ -36,6 +49,28 @@
   $(document).ready(function () {
     $("#honeypot_table").DataTable();
   });
+
+  function sendData(id){
+    toggle(id,false);
+    axios.get('/honeynets/'+id+'/start')
+        .then(res =>{
+          toggle(id,true);
+          if(res['data']['rc']!=0){
+            alert("Failed. Please checkout console")
+            console.log(res['data']['stdout'])
+          }
+        })
+        .catch(errors => console.log(errors))
+}
+  function toggle(id,state) {
+    document.getElementById('startbtn_'+id).disabled=!state;
+    x=document.getElementById('spinner_'+id)
+    if (!state) {
+      x.style.display = "inline-block";
+    } else {
+      x.style.display = "none";
+    }
+  }
 </script>
 
 {% endblock %}

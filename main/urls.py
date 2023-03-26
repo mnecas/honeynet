@@ -5,13 +5,17 @@ from main.views import (
     ExportView,
     DeleteData,
     EditHoneypot,
-    HoneypotAddView,
     HoneynetAddView,
+    ViewHoneynet,
+    DeleteHoneynet,
+    StartAnsibleDeploymentView
 )
 
 urlpatterns = [
-    path("add/", HoneypotAddView.as_view()),
-    path("addhoneynet/", HoneynetAddView.as_view()),
+    path("honeynets/", HoneynetAddView.as_view()),
+    path("honeynets/<uuid:pk>/", ViewHoneynet.as_view()),
+    path("honeynets/<uuid:pk>/start", StartAnsibleDeploymentView.as_view()),
+    path("honeynets/<uuid:pk>/delete", DeleteHoneynet.as_view()),
     path("honeypots/<uuid:pk>/", HoneypotView.as_view()),
     path("honeypots/<uuid:pk>/delete", DeleteData.as_view()),
     path("honeypots/<uuid:pk>/export", ExportView.as_view()),

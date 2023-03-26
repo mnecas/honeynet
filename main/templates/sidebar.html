@@ -4,15 +4,25 @@
       <span class="fs-4">Honeynets</span>
     </a>
     <hr>
-    <ul class="nav nav-pills flex-column mb-auto">
-      {% for item in honeypots %}
-      <li class="nav-item">
-        <a href="/honeypots/{{item.id}}" class="nav-link text-white {% if item.id == honeypot.id %} active {% endif %}" aria-current="page">
-          {{ item.name }}
-        </a>
-      </li>
-      {% endfor%}
-    </ul>
-    <a class="btn btn-secondary" href="/add">Add</a>
+    {% for honeynet,honeypots in honeynets.items %}
+
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item">
+          <a href="/honeynets/{{ honeynet.id }}" class="nav-link text-white {% if honeynet.id == selected.id %} active {% endif %}">{{ honeynet.name }}</a>
+        </li>
+        <ul class="nav nav-pills flex-column">
+          {% for honeypot in honeypots %}
+          <li class="nav-item">
+            <a href="/honeypots/{{ honeypot.id }}" class="nav-link text-white {% if honeypot.id == selected.id %} active {% endif %}" aria-current="page">
+              ● {{ honeypot.name }}
+            </a>
+          </li>
+          {% endfor%}
+        </ul>
+      </ul>
+      <br>
+    {% endfor%}
+    <hr>
+    <a class="btn btn-secondary" href="/honeynets">Add</a>
   </div>
 </sidebar>

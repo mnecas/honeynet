@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponse, JsonResponse
 from django.views import View
 from django.views.generic.base import TemplateView
-from main.models import HoneypotAttack, Honeypot, AttackDump
+from main.models import HoneypotAttack, Honeypot, AttackDump, Honeynet
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from django.core.files.storage import FileSystemStorage
@@ -10,8 +10,6 @@ from api.serializers import HoneypotAttackSerializer
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User, Group
 from main.management.commands.config import Command as HoneypotGroupInit
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 import tarfile
 import os
 import json
@@ -20,39 +18,20 @@ import uuid
 import shutil
 import yaml
 
+
+def get_honeypots():
+    return {item:Honeypot.objects.filter(honeynet=item) for item in Honeynet.objects.all()}
+
 class IndexView(TemplateView):
     template_name = "index.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["honeypots"] = Honeypot.objects.all()
+        context["honeynets"] = get_honeypots()
+        print(context)
         return context
 
 
-class HoneypotAddView(TemplateView):
-    template_name = "honeypot_form.html"
-
-    def post(self, request):
-        if not Group.objects.filter(name="honeypot").exists():
-            HoneypotGroupInit().handle()
-        honeypot_group = Group.objects.get(name="honeypot")
-        user = User.objects.create_user(
-            username="honeypot-{}-{}".format(
-                request.POST.get("type"), str(uuid.uuid4())
-            )
-        )
-        user.groups.add(honeypot_group)
-        Token.objects.create(user=user)
-
-        Honeypot.objects.create(
-            name=request.POST.get("name"), type=request.POST.get("type"), author=user
-        )
-        return redirect("/")
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["honeypots"] = Honeypot.objects.all()
-        return context
 
 
 class HoneypotView(TemplateView):
@@ -70,7 +49,8 @@ class HoneypotView(TemplateView):
 
         dumps = AttackDump.objects.filter(honeypot=honeypot)
         token = Token.objects.get(user=honeypot.author)
-        context["honeypots"] = Honeypot.objects.all()
+        context["honeynets"] = get_honeypots()
+        context["selected"] = honeypot
         context["honeypot"] = honeypot
         context["token"] = token
         context["dumps"] = dumps
@@ -137,25 +117,48 @@ class DeleteData(View):
         return redirect(".")
 
 
+class DeleteHoneynet(View):
+    def get(self, request, pk):
+        honeypot = Honeynet.objects.get(pk=pk)
+        honeypot.delete()
+        return redirect("/")
+
 class EditHoneypot(View):
     def post(self, request, pk):
         name = request.POST.get("name")
-        type = request.POST.get("type")
         honeypot = Honeypot.objects.get(pk=pk)
         if name:
             honeypot.name = name
-        if type:
-            honeypot.type = type
         honeypot.save()
         return redirect(".")
 
-class HoneynetAddView(View):
-    def post(self, request):
-        self.data = request.POST
-        self.nodes = json.loads(request.POST["honeypots"])
-        self.generate_ansible_runner_dir()
-        self.start_palybook()
-        rc = self.get_playbook_status_code()
+
+class ViewHoneynet(TemplateView):
+    template_name = "honeynet.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        honeynet = get_object_or_404(Honeynet, pk=kwargs["pk"])
+
+        context["honeynets"] = get_honeypots()
+        context["honeynet"] = honeynet
+        context["selected"] = honeynet
+        context["honeypots"] = Honeypot.objects.filter(honeynet=honeynet)
+        return context
+
+    def post(self, request, pk):
+        name = request.POST.get("name")
+        honeypot = Honeypot.objects.get(pk=pk)
+        if name:
+            honeypot.name = name
+        honeypot.save()
+        return redirect(".")
+
+class StartAnsibleDeploymentView(View):
+    def get(self, request, pk):
+        self.honeynet = get_object_or_404(Honeynet, pk=pk)
+        self.honeypots = Honeypot.objects.filter(honeynet=self.honeynet)
+        rc = self.start_palybook()
         if rc != 0:
             return JsonResponse({"rc": rc, "stdout": self.get_playbook_stdout()})
         return JsonResponse({"rc": rc})
@@ -167,7 +170,6 @@ class HoneynetAddView(View):
         os.mkdir(self.path)
 
         shutil.copytree('project', self.path, dirs_exist_ok=True)
-
         env_path = os.path.join(self.path, "env")
         os.mkdir(env_path)
 
@@ -180,16 +182,12 @@ class HoneynetAddView(View):
             f.write(yaml.dump(self.format_data(), default_flow_style=False))
 
     def store_docker_compose(self):
-        for node in self.nodes:
-            compose = node['compose']
-            if compose != "":
-                path = self.get_docker_compose_path(node)
+        for honeypot in self.honeypots:
+            if honeypot.compose != "" and honeypot.compose != None :
+                path = os.path.join(self.path, str(honeypot.id))
                 os.mkdir(path)
                 with open(os.path.join(path, "docker-compose.yml"), "w+") as f:
-                    f.write(compose)
-
-    def get_docker_compose_path(self, node):
-        return os.path.join(self.path, str(node.get('id')))
+                    f.write(honeypot.compose)
 
     def get_playbook_status_code(self):
         with open(f"{self.path}/artifacts/{self.id}/rc") as f:
@@ -200,23 +198,72 @@ class HoneynetAddView(View):
             return f.read()
 
     def start_palybook(self):
-        os.system(f"ansible-runner run {self.path} -p deployment.yml -i {self.id}")
+        self.generate_ansible_runner_dir()
+        os.system(f"ansible-runner run {self.path} -p deployment.yml -i {self.id} -q")
+        return self.get_playbook_status_code()
 
     def format_data(self):
         return {
-            "esxi_hostname": self.data['hostname'],
-            "esxi_username": self.data['username'],
-            "esxi_password": self.data['password'],
-            "nic_name": self.data['nic'],
-            "switch_name": self.data['switch'],
+            "esxi_hostname": self.honeynet.hostname,
+            "esxi_username": self.honeynet.username,
+            "esxi_password": self.honeynet.password,
+            "nic_name": self.honeynet.nic,
+            "switch_name": self.honeynet.switch,
             "vms": [
                 {
-                    "name": node["name"],
-                    "vmware_vm_user": node.get("vm_username", None),
-                    "vmware_vm_pass": node.get("vm_password", None),
+                    "name": honeypot.name,
+                    "vmware_vm_user": honeypot.username,
+                    "vmware_vm_pass": honeypot.password,
                     "portgroup_name": "honeypots-portgroup",
-                    "compose_file": os.path.join(self.get_docker_compose_path(node), "docker-compose.yml")
-                } for node in self.nodes
+                    "compose_file": os.path.join(os.path.join(self.path, str(honeypot.id)), "docker-compose.yml")
+                } for honeypot in self.honeypots
             ]
         }
 
+
+class HoneynetAddView(TemplateView):
+    template_name = "honeynet.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["honeynets"] = get_honeypots()
+        return context
+
+    def post(self, request):
+        honeynet, created = Honeynet.objects.get_or_create(
+            name=request.POST.get("name"),
+            hostname=request.POST.get("hostname"),
+            username=request.POST.get("username"),
+            nic=request.POST.get("nic"),
+            switch=request.POST.get("switch")
+        )
+        if not created:
+            return redirect("/")
+
+        nodes = json.loads(request.POST["honeypots"])
+        for node in nodes:
+            self.createHoneypot(node, honeynet)
+
+        return redirect("/")
+
+    def createHoneypot(self, node, honeynet):
+        if not Group.objects.filter(name="honeypot").exists():
+            HoneypotGroupInit().handle()
+        honeypot_group = Group.objects.get(name="honeypot")
+        user = User.objects.create_user(
+            username="honeypot-{}".format(
+                str(uuid.uuid4())
+            )
+        )
+        user.groups.add(honeypot_group)
+        Token.objects.create(user=user)
+
+        return Honeypot.objects.create(
+            name=node.get("name"),
+            author=user,
+            honeynet=honeynet,
+            username=node.get("username"),
+            password=node.get("password"),
+            ovf=node.get("ovf"),
+            compose=node.get("compose"),
+        )

@@ -22,6 +22,8 @@ function addHoneypot(){
   let ovf = document.getElementById("ovf").value
   let vm_username = document.getElementById("vm_username").value;
   let vm_password = document.getElementById("vm_password").value;
+  console.log(honeypotName)
+  if (honeypotName == "") return;
   // Add
   if(honeypotId == ""){
     let id = Math.floor(Math.random() * 1000) + 1;

@@ -4,17 +4,26 @@ from django.core.files.storage import FileSystemStorage
 import uuid
 
 class Honeynet(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)
-
+    hostname = models.CharField(max_length=128)
+    username = models.CharField(max_length=128)
+    password = models.CharField(max_length=128)
+    nic = models.CharField(max_length=128)
+    switch = models.CharField(max_length=128)
 
 class Honeypot(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     honeynet = models.ForeignKey(Honeynet, on_delete=models.CASCADE)
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    compose = models.TextField(null=True, blank=True)
+    ovf = models.CharField(max_length=128,null=True, blank=True)
+    username = models.CharField(max_length=128,null=True, blank=True)
+    password = models.CharField(max_length=128,null=True, blank=True)
 
     def __str__(self):
-        return " - ".join([self.name, self.type])
+        return " - ".join([self.honeynet.name, self.name])
 
 
 class Attacker(models.Model):

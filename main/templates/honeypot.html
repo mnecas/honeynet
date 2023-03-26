@@ -6,12 +6,10 @@
     {% csrf_token %}
     <div id="original-params">
       <h3>{{ honeypot.name }}</h3>
-      <h4>Type: {{ honeypot.type }}</h4>
       <h4>Token: {{ token }}</h4>
     </div>
     <div id="edit-params" style="display: none;">
       <b>Name: </b><input type="text" class="form-control" placeholder="{{ honeypot.name }}" name="name"></input>
-      <b>Type: </b><input type="text" class="form-control" placeholder="{{ honeypot.type }}" name="type"></input>
       <button class="btn btn-outline-primary m-1" type="submit">Submit</button>
     </div>
 
@@ -60,7 +58,7 @@
       </table>
     </div>
     <hr />
-    <h3>Dumps</h3>
+    <h3>tcpdumps</h3>
     <div class="table-responsive">
       <table id="dump_table" class="table table-striped">
         <thead>
