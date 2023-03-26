@@ -29,7 +29,6 @@ class IndexView(TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context["honeynets"] = get_honeypots()
-        print(context)
         return context
 
 
@@ -60,16 +59,14 @@ class HoneypotView(TemplateView):
         return context
 
     def post(self, request, hn_pk, hp_pk):
-        honeypot = Honeypot.objects.filter(id=hp_pk)
-        honeypot.update(
-            id=hp_pk,
-            name=request.POST.get("name"),
-            username=request.POST.get("username"),
-            password=request.POST.get("password"),
-            ovf=request.POST.get("ovf"),
-            compose=request.POST.get("compose"),
-        )
+        honeypot = Honeypot.objects.get(id=hp_pk)
+        atrs = ["name", "username", "password", "ovf", "compose"]
+        for atr in atrs:
+            if request.POST.get(atr) != "":
+                setattr(honeypot, atr, request.POST.get(atr))
+        honeypot.save()
         return redirect(f"/honeynets/{hn_pk}/")
+
 
 class ExportView(View):
     def post(self, request, hn_pk, hp_pk):
@@ -115,7 +112,11 @@ class ExportView(View):
 class DeleteData(View):
     def get(self, request, hn_pk, hp_pk):
         honeypot = Honeypot.objects.get(pk=hp_pk)
-        honeypot.delete()
+        honeynet = get_object_or_404(Honeynet, pk=hn_pk)
+        ansible = StartAnsible([honeypot], honeynet)
+        rc = ansible.start_cleanup()
+        if rc == 0:
+            honeypot.delete()
         return redirect(f"/honeynets/{hn_pk}")
 
     def post(self, request, hn_pk, hp_pk):
@@ -134,9 +135,17 @@ class DeleteData(View):
 
 class DeleteHoneynet(View):
     def get(self, request, pk):
-        honeypot = Honeynet.objects.get(pk=pk)
-        honeypot.delete()
+        honeynet = Honeynet.objects.get(pk=pk)
+        honeypots = Honeypot.objects.filter(honeynet__id=honeynet.id)
+        if honeypots:
+            ansible = StartAnsible(honeypots, honeynet)
+            rc = ansible.start_cleanup_all()
+            if rc == 0:
+                honeynet.delete()
+        else:
+            honeynet.delete()
         return redirect("/")
+
 
 class HoneynetView(TemplateView):
     template_name = "honeynet.html"
@@ -152,23 +161,19 @@ class HoneynetView(TemplateView):
         return context
 
     def post(self, request, pk):
-        Honeynet.objects.update(
-            name=request.POST.get("name"),
-            hostname=request.POST.get("hostname"),
-            username=request.POST.get("username"),
-            nic=request.POST.get("nic"),
-            switch=request.POST.get("switch")
-        )
+        honeynet = Honeynet.objects.get(id=pk)
+        atrs = ["name", "hostname", "username", "password", "nic", "switch"]
+        for atr in atrs:
+            if request.POST.get(atr) != "":
+                setattr(honeynet, atr, request.POST.get(atr))
+        honeynet.save()
         return redirect(".")
 
-class StartAnsibleDeploymentView(View):
-    def get(self, request, pk):
-        self.honeynet = get_object_or_404(Honeynet, pk=pk)
-        self.honeypots = Honeypot.objects.filter(honeynet=self.honeynet)
-        rc = self.start_palybook()
-        if rc != 0:
-            return JsonResponse({"rc": rc, "stdout": self.get_playbook_stdout()})
-        return JsonResponse({"rc": rc})
+
+class StartAnsible:
+    def __init__(self, honeypots, honeynet):
+        self.honeypots = honeypots
+        self.honeynet = honeynet
 
     def generate_ansible_runner_dir(self):
         self.id = str(uuid.uuid4())
@@ -204,10 +209,19 @@ class StartAnsibleDeploymentView(View):
         with open(f"{self.path}/artifacts/{self.id}/stdout") as f:
             return f.read()
 
-    def start_palybook(self):
+    def start_deployment(self):
+        return self.start_palybook("deployment.yml")
+
+    def start_cleanup(self):
+        return self.start_palybook("cleanup.yml")
+
+    def start_cleanup_all(self):
+        return self.start_palybook("cleanup_all.yml")
+
+    def start_palybook(self, playbook):
         self.generate_ansible_runner_dir()
         os.system(
-            f"ansible-runner run {self.path} -p deployment.yml -i {self.id} -q")
+            f"ansible-runner run {self.path} -p {playbook} -i {self.id} -q")
         return self.get_playbook_status_code()
 
     def format_data(self):
@@ -227,6 +241,17 @@ class StartAnsibleDeploymentView(View):
                 } for honeypot in self.honeypots
             ]
         }
+
+
+class StartAnsibleDeploymentView(View):
+    def get(self, request, pk):
+        self.honeynet = get_object_or_404(Honeynet, pk=pk)
+        self.honeypots = Honeypot.objects.filter(honeynet=self.honeynet)
+        ansible = StartAnsible(self.honeypots, self.honeynet)
+        rc = ansible.start_deployment()
+        if rc != 0:
+            return JsonResponse({"rc": rc, "stdout": ansible.get_playbook_stdout()})
+        return JsonResponse({"rc": rc})
 
 
 class HoneypotAddView(View):
@@ -251,6 +276,7 @@ class HoneypotAddView(View):
             compose=request.POST.get("compose"),
         )
         return redirect(f"/honeynets/{hn_pk}/")
+
 
 class HoneynetAddView(TemplateView):
     template_name = "honeynet.html"

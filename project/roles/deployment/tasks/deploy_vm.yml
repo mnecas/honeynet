@@ -1,4 +1,5 @@
-- name: Import ovf VM
+---
+- name: "Import ovf VM {{ item.name }}"
   community.vmware.vmware_deploy_ovf:
     hostname: "{{ esxi_hostname }}"
     username: "{{ esxi_username }}"
@@ -29,7 +30,8 @@
   - set_fact:
       vm_addr: "{{ facts['virtual_machines'][0]['ip_address'] }}"
 
-  - ansible.builtin.add_host:
+  - name: "Add ansible host: '{{ item.vmware_vm_user }}'"
+    ansible.builtin.add_host:
       hostname: "{{ vm_addr }}"
       ansible_ssh_user: "{{ item.vmware_vm_user | default(vmware_vm_user, true) }}"
       ansible_ssh_pass: "{{ item.vmware_vm_pass | default(vmware_vm_pass, true) }}"

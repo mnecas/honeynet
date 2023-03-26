@@ -1,0 +1,49 @@
+---
+- name: Cleanup vm
+  community.vmware.vmware_guest:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ validate_certs }}"
+    name: "{{ item.name }}"
+    state: absent
+  delegate_to: localhost
+  with_items: "{{ vms | default([]) }}"
+
+- name: Add Portgroup with Promiscuous Mode Enabled
+  community.vmware.vmware_portgroup:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    hosts: "{{ esxi_hostname }}"
+    validate_certs: "{{ validate_certs }}"
+    switch: "{{ switch_name }}"
+    portgroup: "{{ promisc_portgroup_name }}"
+    state: absent
+  delegate_to: localhost
+  when: cleanup_all
+
+- name: Add Portgroup with Promiscuous Mode Enabled
+  community.vmware.vmware_portgroup:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    hosts: "{{ esxi_hostname }}"
+    validate_certs: "{{ validate_certs }}"
+    switch: "{{ switch_name }}"
+    portgroup: "{{ honeypots_portgroup_name }}"
+    state: absent
+  delegate_to: localhost
+  when: cleanup_all
+
+- name: Add a VMware vSwitch for honeypots
+  community.vmware.vmware_vswitch:
+    hostname: "{{ esxi_hostname }}"
+    username: "{{ esxi_username }}"
+    password: "{{ esxi_password }}"
+    validate_certs: "{{ validate_certs }}"
+    switch_name: "{{ switch_name }}"
+    nic_name: "{{ nic_name }}"
+    state: absent
+  delegate_to: localhost
+  when: cleanup_all

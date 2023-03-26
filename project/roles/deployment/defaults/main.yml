@@ -9,3 +9,5 @@ honeypots_portgroup_name: honeypots-portgroup
 vmware_vm_user: root
 vmware_vm_pass: 123456
 honeypots: []
+cleanup: false
+cleanup_all: false

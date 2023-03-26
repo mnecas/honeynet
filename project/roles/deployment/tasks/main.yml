@@ -1,64 +1,8 @@
 ---
-- name: Add a VMware vSwitch for honeypots
-  community.vmware.vmware_vswitch:
-    hostname: "{{ esxi_hostname }}"
-    username: "{{ esxi_username }}"
-    password: "{{ esxi_password }}"
-    validate_certs: "{{ validate_certs }}"
-    switch_name: "{{ switch_name }}"
-    nic_name: "{{ nic_name }}"
-    security:
-        promiscuous_mode: True
-  delegate_to: localhost
+- name: Start deployment
+  include_tasks: deployment.yml
+  when: not cleanup
 
-- name: Add Portgroup with Promiscuous Mode Enabled
-  community.vmware.vmware_portgroup:
-    hostname: "{{ esxi_hostname }}"
-    username: "{{ esxi_username }}"
-    password: "{{ esxi_password }}"
-    hosts: "{{ esxi_hostname }}"
-    validate_certs: "{{ validate_certs }}"
-    switch: "{{ switch_name }}"
-    portgroup: "{{ promisc_portgroup_name }}"
-    security:
-        promiscuous_mode: True
-  delegate_to: localhost
-
-- name: Add Portgroup with Promiscuous Mode Enabled
-  community.vmware.vmware_portgroup:
-    hostname: "{{ esxi_hostname }}"
-    username: "{{ esxi_username }}"
-    password: "{{ esxi_password }}"
-    hosts: "{{ esxi_hostname }}"
-    validate_certs: "{{ validate_certs }}"
-    switch: "{{ switch_name }}"
-    portgroup: "{{ honeypots_portgroup_name }}"
-    security:
-        promiscuous_mode: False
-  delegate_to: localhost
-
-- name: Get info about the data server
-  community.vmware.vmware_vm_info:
-    hostname: "{{ esxi_hostname }}"
-    username: "{{ esxi_username }}"
-    password: "{{ esxi_password }}"
-    validate_certs: "{{ validate_certs }}"
-    vm_name: "{{ dataserver_name }}"
-  delegate_to: localhost
-  register: data_vm
-
-- name: Set data vm ip
-  set_fact:
-    data_vm_ip: "{{ data_vm['virtual_machines'][0]['ip_address'] }}"
-
-- name: Import VMs
-  include_tasks: deploy_vm.yml
-  with_items: "{{ vms | default([]) }}"
-  vars:
-      ishoneypot: true
-
-- name: Import default VM
-  include_tasks: deploy_vm.yml
-  with_items: "{{ default_vms | default([]) }}"
-  vars:
-      ishoneypot: false
+- name: Cleanup enviroment
+  include_tasks: cleanup.yml
+  when: cleanup

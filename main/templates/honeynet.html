@@ -42,14 +42,14 @@
         <b>Switch name:</b><input type="text" class="form-control" name="switch" placeholder="{{ honeynet.switch }}"></input>
       </div>
     </div>
-    <br>
+    <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>
+    <hr>
     <div id="graphcontainer"></div>
-    <br>
+    <hr>
     <div class="me-auto">
       <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#honeypotModal" id="add_honeypot_btn">
         Add Honeypot
       </button>
-      <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()" id='main_submit_btn'>Submit</button>
     </div>
   </form>
 </div>
@@ -102,7 +102,7 @@
         "id": "{{ honeypot.id }}",
         "name": "{{ honeypot.name }}",
         "type": "honeypot",
-        "compose": "{{ honeypot.compose }}",
+        "compose": `{{ honeypot.compose }}`,
         "ovf": "{{ honeypot.ovf }}",
         "vm_username": "{{ honeypot.vm_username }}",
         "vm_password": "{{ honeypot.vm_password }}",
