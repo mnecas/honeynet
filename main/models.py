@@ -5,12 +5,12 @@ import uuid
 
 class Honeynet(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    name = models.CharField(max_length=128)
-    hostname = models.CharField(max_length=128)
-    username = models.CharField(max_length=128)
-    password = models.CharField(max_length=128)
-    nic = models.CharField(max_length=128)
-    switch = models.CharField(max_length=128)
+    name = models.CharField(max_length=128,null=True, blank=True)
+    hostname = models.CharField(max_length=128,null=True, blank=True)
+    username = models.CharField(max_length=128,null=True, blank=True)
+    password = models.CharField(max_length=128,null=True, blank=True)
+    nic = models.CharField(max_length=128,null=True, blank=True)
+    switch = models.CharField(max_length=128,null=True, blank=True)
 
 class Honeypot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -21,9 +21,6 @@ class Honeypot(models.Model):
     ovf = models.CharField(max_length=128,null=True, blank=True)
     username = models.CharField(max_length=128,null=True, blank=True)
     password = models.CharField(max_length=128,null=True, blank=True)
-
-    def __str__(self):
-        return " - ".join([self.honeynet.name, self.name])
 
 
 class Attacker(models.Model):

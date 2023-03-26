@@ -1,26 +1,12 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="m-4">
-
-  <form action="edit" method="post">
-    {% csrf_token %}
-    <div id="original-params">
-      <h3>{{ honeypot.name }}</h3>
-      <h4>Token: {{ token }}</h4>
-    </div>
-    <div id="edit-params" style="display: none;">
-      <b>Name: </b><input type="text" class="form-control" placeholder="{{ honeypot.name }}" name="name"></input>
-      <button class="btn btn-outline-primary m-1" type="submit">Submit</button>
-    </div>
-
-    <div class="d-flex justify-content-end">
-      <a class="btn btn-outline-primary m-1" onclick="showDiv()">
-        Edit
-      </a>
-    </div>
-  </form>
+  <div id="original-params">
+    <h3>{{ honeypot.name }}</h3>
+    <h4>Token: {{ token }}</h4>
+  </div>
   <hr/>
-  <form action="export" method="post">
+  <form action="/honeynets/{{ honeynet.id }}/honeypots/{{ honeypot.id }}/export" method="post">
     {% csrf_token %}
     <h3>Specific data</h3>
     <div class="table-responsive">
@@ -96,7 +82,7 @@
     >
       Export
     </button>
-    <button class="btn btn-outline-danger m-1" type="submit" formaction="delete">
+    <button class="btn btn-outline-danger m-1" type="submit" formaction="/honeynets/{{ honeynet.id }}/honeypots/{{ honeypot.id }}/delete">
       Delete
     </button>
     <!-- Modal -->
@@ -138,7 +124,7 @@
             >
               Close
             </button>
-            <button id="export" type="submit" class="btn btn-outline-primary">
+            <button type="submit" class="btn btn-outline-primary">
               Export
             </button>
           </div>
@@ -159,17 +145,5 @@
     $("#attack_table").DataTable();
     $("#dump_table").DataTable();
   });
-
-  let i = 0;
-  function showDiv() {
-    if(i%2===0){
-      document.getElementById("edit-params").style.display = "block";
-      document.getElementById("original-params").style.display = "none";
-    } else{
-      document.getElementById("edit-params").style.display = "none";
-      document.getElementById("original-params").style.display = "block";
-    }
-    i++;
-  }
 </script>
 {% endblock %}

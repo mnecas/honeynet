@@ -15,98 +15,55 @@
   }
 </style>
 
+{% include "modal.html" %}
 <div class="m-4">
-  <div>
+  <form action="." method="post">
+    {% csrf_token %}
     <div class="col">
-      <b>Name:</b><input type="text" class="form-control" id="name"></input>
+      <b>Name:</b><input type="text" class="form-control" name="name" placeholder="{{ honeynet.name }}"></input>
     </div>
     <div class="row">
       <div class="col">
-        <b>ESXi hostname:</b><input type="text" class="form-control" id="hostname"></input>
+        <b>ESXi hostname:</b><input type="text" class="form-control" name="hostname" placeholder="{{ honeynet.hostname }}"></input>
       </div>
       <div class="col">
-        <b>ESXi username:</b><input type="text" class="form-control" id="username" value="{{ honeynet. }}"></input>
+        <b>ESXi username:</b><input type="text" class="form-control" name="username" placeholder="{{ honeynet.username }}"></input>
       </div>
       <div class="col">
-        <b>ESXi password:</b><input type="password" class="form-control" id="password"></input>
+        <b>ESXi password:</b><input type="password" class="form-control" name="password"></input>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <b>Physical nic:</b><input type="text" class="form-control" id="nic"></input>
+        <b>Physical nic:</b><input type="text" class="form-control" name="nic" placeholder="{{ honeynet.nic }}"></input>
       </div>
 
       <div class="col">
-        <b>Switch name:</b><input type="text" class="form-control" id="switch"></input>
+        <b>Switch name:</b><input type="text" class="form-control" name="switch" placeholder="{{ honeynet.switch }}"></input>
       </div>
     </div>
     <br>
     <div id="graphcontainer"></div>
     <br>
     <div class="me-auto">
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" id="add_honeypot_btn">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#honeypotModal" id="add_honeypot_btn">
         Add Honeypot
       </button>
       <button class="btn btn-outline-primary m-1" type="submit" onclick="sendData()" id='main_submit_btn'>Submit</button>
     </div>
-  </div>
+  </form>
 </div>
 
 
 <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Create honeypot</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <form>
-          <input id="honeypot_id" type="hidden">
-          <div class="mb-3">
-            <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
-            <input type="text" class="form-control" id="honeypot_name">
-          </div>
-          <div class="mb-3">
-            <label for="docker_compose" class="col-form-label"><b>Docker compose:</b></label>
-            <textarea class="form-control" id="docker_compose"></textarea>
-          </div>
-          <hr>
-          <div class="mb-3">
-            <label for="ovf" class="col-form-label"><b>OVF:</b></label>
-            <input type="text" class="form-control" id="ovf">
-          </div>
-          <div class="row">
-            <div class="col">
-              <b>VM username:</b><input type="text" class="form-control" name="name" id="vm_username"></input>
-            </div>
-            <div class="col">
-              <b>VM password:</b><input type="password" class="form-control" name="name" id="vm_password"></input>
-            </div>
-          </div>
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" onclick="addHoneypot()" data-bs-dismiss="modal">Submit</button>
-      </div>
-    </div>
-  </div>
-</div>
+{% for item in honeypots %}
+{% include "modal.html" %}
+{% endfor %}
 <div id="demo"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-<script src="{% static 'main.js' %}"></script>
 
 <script>
-  $('#exampleModal').on('hidden.bs.modal', function () {
-    list = ["honeypot_name","docker_compose","honeypot_id","ovf","vm_username","vm_password"]
-    for (let i = 0; i < list.length; i++) {
-      document.getElementById(list[i]).value = "";
-    }
-  })
-
   let graphdata = {
     "nodes": [
       {
@@ -173,24 +130,44 @@
       {% endfor %}
     ]
   }
-  renderGraph(graphdata);
-  function sendData(){
-      //toggle(false);
+  var chart = anychart.graph(graphdata);
+  var nodes = chart.nodes();
+  // set the size of nodes
+  nodes.normal().height(30);
+  nodes.hovered().height(45);
+  nodes.selected().height(45);
 
-      let data = new FormData();
-      data.append("honeypots",JSON.stringify(graphdata["nodes"].filter(h => h.type == 'honeypot')));
-      data.append("name",document.getElementById("name").value);
-      data.append("hostname",document.getElementById("hostname").value);
-      data.append("username",document.getElementById("username").value);
-      data.append("password",document.getElementById("password").value);
-      data.append("nic",document.getElementById("nic").value);
-      data.append("switch",document.getElementById("switch").value);
-      data.append("csrfmiddlewaretoken", '{{csrf_token}}');
-      axios.post('/honeynets/', data)
-          .then(res =>{
-            window.location.replace("/");
-          })
-          .catch(errors => console.log(errors))
-  }
+  // set the stroke of nodes
+  nodes.normal().stroke(null);
+  nodes.hovered().stroke("#333333", 3);
+  nodes.selected().stroke("#333333", 3);
+
+  // enable the labels of nodes
+  chart.nodes().labels().enabled(true);
+
+  // configure the labels of nodes
+  chart.nodes().labels().format("{%name}");
+  chart.nodes().labels().fontSize(12);
+  chart.nodes().labels().fontWeight(600);
+  // draw the chart
+  chart.container("graphcontainer").draw();
+
+  // onclick
+  chart.listen('click', function(e) {
+    var tag = e.domTarget.tag;
+    if (tag) {
+      if (tag.type === 'node') {
+        for (var i = 0; i < graphdata.nodes.length; i++) {
+{% for honeypot in honeypots %}
+          if ("{{ honeypot.id }}" == tag.id  && graphdata.nodes[i].type == "honeypot") {
+            let myModal = new bootstrap.Modal(document.getElementById('honeypotModal-{{ honeypot.id }}'), {});
+            myModal.show();
+            break;
+          }
+{% endfor %}
+        }
+      }
+    }
+  });
 </script>
 {% endblock %}

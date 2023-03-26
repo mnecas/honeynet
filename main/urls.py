@@ -4,21 +4,24 @@ from main.views import (
     HoneypotView,
     ExportView,
     DeleteData,
-    EditHoneypot,
     HoneynetAddView,
-    ViewHoneynet,
+    HoneynetView,
     DeleteHoneynet,
-    StartAnsibleDeploymentView
+    StartAnsibleDeploymentView,
+    HoneypotAddView
 )
 
 urlpatterns = [
     path("honeynets/", HoneynetAddView.as_view()),
-    path("honeynets/<uuid:pk>/", ViewHoneynet.as_view()),
+    path("honeynets/<uuid:pk>/", HoneynetView.as_view()),
     path("honeynets/<uuid:pk>/start", StartAnsibleDeploymentView.as_view()),
     path("honeynets/<uuid:pk>/delete", DeleteHoneynet.as_view()),
-    path("honeypots/<uuid:pk>/", HoneypotView.as_view()),
-    path("honeypots/<uuid:pk>/delete", DeleteData.as_view()),
-    path("honeypots/<uuid:pk>/export", ExportView.as_view()),
-    path("honeypots/<uuid:pk>/edit", EditHoneypot.as_view()),
+
+    path("honeynets/<uuid:hn_pk>/honeypots/", HoneypotAddView.as_view()),
+    #TODO Remove extra url
+    path("honeynets/<uuid:hn_pk>/honeypots/<uuid:hp_pk>", HoneypotView.as_view()),
+    path("honeynets/<uuid:hn_pk>/honeypots/<uuid:hp_pk>/", HoneypotView.as_view()),
+    path("honeynets/<uuid:hn_pk>/honeypots/<uuid:hp_pk>/delete", DeleteData.as_view()),
+    path("honeynets/<uuid:hn_pk>/honeypots/<uuid:hp_pk>/export", ExportView.as_view()),
     path("", IndexView.as_view()),
 ]

@@ -13,7 +13,7 @@
         <ul class="nav nav-pills flex-column">
           {% for honeypot in honeypots %}
           <li class="nav-item">
-            <a href="/honeypots/{{ honeypot.id }}" class="nav-link text-white {% if honeypot.id == selected.id %} active {% endif %}" aria-current="page">
+            <a href="/honeynets/{{ honeynet.id }}/honeypots/{{ honeypot.id }}" class="nav-link text-white {% if honeypot.id == selected.id %} active {% endif %}" aria-current="page">
               ● {{ honeypot.name }}
             </a>
           </li>
