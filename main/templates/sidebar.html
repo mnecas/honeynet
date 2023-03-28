@@ -8,12 +8,12 @@
 
       <ul class="nav nav-pills flex-column">
         <li class="nav-item">
-          <a href="/honeynets/{{ honeynet.id }}" class="nav-link text-white {% if honeynet.id == selected.id %} active {% endif %}">{{ honeynet.name }}</a>
+          <a href="{% url 'honeynets_details' honeynet.id %}" class="nav-link text-white {% if honeynet.id == selected.id %} active {% endif %}">{{ honeynet.name }}</a>
         </li>
         <ul class="nav nav-pills flex-column">
           {% for honeypot in honeypots %}
           <li class="nav-item">
-            <a href="/honeynets/{{ honeynet.id }}/honeypots/{{ honeypot.id }}" class="nav-link text-white {% if honeypot.id == selected.id %} active {% endif %}" aria-current="page">
+            <a href="{% url 'honeypots_detail' honeynet.id honeypot.id %}" class="nav-link text-white {% if honeypot.id == selected.id %} active {% endif %}" aria-current="page">
               ● {{ honeypot.name }}
             </a>
           </li>
@@ -23,6 +23,6 @@
       <br>
     {% endfor%}
     <hr>
-    <a class="btn btn-secondary" href="/honeynets">Add</a>
+    <a class="btn btn-secondary" href="{% url 'honeynets' %}">Add</a>
   </div>
 </sidebar>

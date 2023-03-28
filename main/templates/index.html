@@ -37,7 +37,7 @@
           <td>
             <a
               type="button"
-              href="honeynets/{{ item.pk }}"
+              href="{% url 'honeynets_details' item.id %}"
               class="btn btn-sm btn-info text-white"
               >Edit</a
             >
@@ -77,12 +77,14 @@
   function sendData(id, endpoint) {
     toggle(id, endpoint, false);
     axios
-      .get("/honeynets/" + id + "/" + endpoint)
+      .get("/honeynets/" + id + "/" + endpoint + "/")
       .then((res) => {
         toggle(id, endpoint, true);
         if (res["data"]["rc"] != 0) {
           alert("Failed. Please checkout console");
           console.log(res["data"]["stdout"]);
+        } else if (endpoint=="delete"){
+          window.location.replace("/");
         }
       })
       .catch((errors) => console.log(errors));

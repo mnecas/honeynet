@@ -6,7 +6,8 @@ services:
     environment:
       SERVER: '{{ data_vm_ip }}'
       DEBUG: 1
-      TCPDUMP_FILTER: "host {{ item.1 }}"
+      TCPDUMP_FILTER: "host {{ item.1 }}{% if item.0.tcpdump %} and {{ item.0.tcpdump }}{% endif %}"
       TOKEN: "{{ item.0.token }}"
+      ID: "{{ item.0.id }}"
     network_mode: host
 {% endfor %}

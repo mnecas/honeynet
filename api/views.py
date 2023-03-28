@@ -46,9 +46,7 @@ class HoneypotViewSet(ModelViewSet):
     def create(self, request):
         honeypot_serializer = HoneypotSerializer(data=request.data)
         if honeypot_serializer.is_valid():
-            if Honeypot.objects.filter(
-                name=request.data.get("name")
-            ).exists():
+            if Honeypot.objects.filter(name=request.data.get("name")).exists():
                 return Response(status=400)
 
             if not Group.objects.filter(name="honeypot").exists():
@@ -56,8 +54,7 @@ class HoneypotViewSet(ModelViewSet):
             honeypot_group = Group.objects.get(name="honeypot")
 
             user = User.objects.create_user(
-                username="honeypot-{}".format(str(uuid.uuid4())
-                )
+                username="honeypot-{}".format(str(uuid.uuid4()))
             )
             user.groups.add(honeypot_group)
             token = Token.objects.create(user=user)

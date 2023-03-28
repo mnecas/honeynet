@@ -8,27 +8,31 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-            <div class="mb-3">
-              <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
-              <input type="text" class="form-control" name="name" placeholder="{{ item.name }}">
+          <div class="mb-3">
+            <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
+            <input type="text" class="form-control" id="honeypot_name" name="name" placeholder="{{ item.name }}">
+          </div>
+          <div class="mb-3">
+            <label for="tcpdump" class="col-form-label"><b>Tcpdump filter:</b></label>
+            <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump }}">
+          </div>
+          <div class="mb-3">
+            <label for="docker_compose" class="col-form-label"><b>Docker compose:</b></label>
+            <textarea class="form-control" name="compose" placeholder="{{ item.compose }}"></textarea>
+          </div>
+          <hr>
+          <div class="mb-3">
+            <label for="ovf" class="col-form-label"><b>OVF:</b></label>
+            <input type="text" class="form-control" name="ovf" placeholder="{{ item.ovf }}">
+          </div>
+          <div class="row">
+            <div class="col">
+              <b>VM username:</b><input type="text" class="form-control" name="username" placeholder="{{ item.username }}"></input>
             </div>
-            <div class="mb-3">
-              <label for="docker_compose" class="col-form-label"><b>Docker compose:</b></label>
-              <textarea class="form-control" name="compose" placeholder="{{ item.compose }}"></textarea>
+            <div class="col">
+              <b>VM password:</b><input type="password" class="form-control" name="password"></input>
             </div>
-            <hr>
-            <div class="mb-3">
-              <label for="ovf" class="col-form-label"><b>OVF:</b></label>
-              <input type="text" class="form-control" name="ovf" placeholder="{{ item.ovf }}">
-            </div>
-            <div class="row">
-              <div class="col">
-                <b>VM username:</b><input type="text" class="form-control" name="username" placeholder="{{ item.username }}"></input>
-              </div>
-              <div class="col">
-                <b>VM password:</b><input type="password" class="form-control" name="password"></input>
-              </div>
-            </div>
+          </div>
         </div>
         <div class="modal-footer">
           {% if item != None %}

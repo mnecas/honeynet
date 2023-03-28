@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 
 class Command(BaseCommand):
     def handle(self, *args, **options):
-
         # The magic line
         if not User.objects.filter(username="mnecas"):
             user = User.objects.create_user(

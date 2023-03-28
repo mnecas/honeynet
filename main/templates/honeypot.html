@@ -6,7 +6,7 @@
     <h4>Token: {{ token }}</h4>
   </div>
   <hr/>
-  <form action="/honeynets/{{ honeynet.id }}/honeypots/{{ honeypot.id }}/export" method="post">
+  <form action="{% url 'honeypots_export' honeynet.id honeypot.id %}" method="post">
     {% csrf_token %}
     <h3>Specific data</h3>
     <div class="table-responsive">
@@ -82,7 +82,7 @@
     >
       Export
     </button>
-    <button class="btn btn-outline-danger m-1" type="submit" formaction="/honeynets/{{ honeynet.id }}/honeypots/{{ honeypot.id }}/delete">
+    <button class="btn btn-outline-danger m-1" type="submit" formaction="{% url 'honeypots_deletedata' honeynet.id honeypot.id %}">
       Delete
     </button>
     <!-- Modal -->
