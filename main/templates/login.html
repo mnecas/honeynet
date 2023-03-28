@@ -1,5 +1,70 @@
-<form action="{% url 'login' %}" method="POST">
-{% csrf_token %}
-{{ form }}
-<button type="submit"> Submit</button>
-</form>
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="{% static 'main/css/bootstrap.min.css' %}" rel="stylesheet"/>
+    <link href="{% static 'main/dashboard.css' %}" rel="stylesheet"/>
+    <title>Honeypot</title>
+    <link rel="shortcut icon" type="image/png" href="{% static 'main/favicon.ico' %}"/>
+  </head>
+  <style type="text/css">
+    .form-signin {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      {% comment %} width: 100%;
+      max-width: 330px;
+      padding: 15px;
+      margin: auto; {% endcomment %}
+  }
+  .text-center{
+    display: flex;
+  }
+  </style>
+  <body>
+    <div class="h-100 d-flex align-items-center justify-content-center">
+      <div style="background:red">
+        </div class="form-signin">
+        <form method="post" action="{% url 'login' %}">{% csrf_token %}
+          <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+
+          <div class="form-floating">
+            <input type="text" class="form-control" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" placeholder="Username">
+            <label for="{{ form.username.id_for_label }}" >Username</label>
+          </div>
+          <div class="form-floating">
+            <input type="password" class="form-control" name="{{ form.password.html_name }}"  id="{{ form.password.id_for_label }}" placeholder="Password">
+            <label for="{{ form.password.id_for_label }}">Password</label>
+          </div>
+
+          <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+        </form>
+      </div>
+    </div>
+    {% comment %} </div>
+      <div class="d-flex justify-content-center">
+      <form role="form" class="form-horizontal" method="post" action="{% url 'login' %}">{% csrf_token %}
+        <div class="form-group">
+
+            <div class="input-group">
+              <label for="{{ form.username.id_for_label }}" class="col-form-label"><b>Username:</b></label><br>
+              <input class="form-control" id="{{ form.username.id_for_label }}" maxlength="30" name="{{ form.username.html_name }}" type="text" />
+              {{ form.username.errors }}
+            </div>
+            <div class="input-group">
+              <label for="{{ form.password.id_for_label }}" class="col-form-label"><b>Password:</b></label>
+            <input class="form-control" id="{{ form.password.id_for_label }}" maxlength="30" name="{{ form.password.html_name }}" type="password" />
+              {{ form.password.errors }}
+            </div>
+            <input type="submit" class="btn btn-primary" />
+        </div> {% endcomment %}
+    </form>
+  </div>
+    {% comment %} </main> {% endcomment %}
+    <script src="{% static 'main/js/bootstrap.min.js' %}"></script>
+  </body>
+</html>
+

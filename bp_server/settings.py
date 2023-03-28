@@ -30,6 +30,7 @@ ALLOWED_HOSTS = ["*"]
 
 APPEND_SLASH = False
 
+LOGIN_URL = "/login/"
 
 # Application definition
 

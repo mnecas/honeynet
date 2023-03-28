@@ -248,6 +248,7 @@ class LoginView(View):
 
     def post(self, request):
         form = AuthenticationForm(request, data=request.POST)
+        print(request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)
@@ -260,8 +261,8 @@ class LoginView(View):
 class LogoutView(View):
     def get(self, request):
         logout(request)
-        return redirect(reverse("login"))
+        return redirect("/")
 
     def post(self, request):
         logout(request)
-        return redirect(reverse("login"))
+        return redirect("/")

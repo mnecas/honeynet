@@ -3,6 +3,8 @@
     <a href="/" class="d-flex align-items-center mb-3 mb-md-0 me-md-auto text-white text-decoration-none">
       <span class="fs-4">Honeynets</span>
     </a>
+    <br>
+    <a href="{% url 'logout' %}" class="btn btn-outline-danger">Signout</a>
     <hr>
     {% for honeynet,honeypots in honeynets.items %}
 
