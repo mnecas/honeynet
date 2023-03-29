@@ -44,7 +44,6 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework.authtoken",
-    # "corsheaders",
 ]
 
 MIDDLEWARE = [
@@ -55,12 +54,8 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    # 'corsheaders.middleware.CorsMiddleware',
 ]
 
-# CORS_ORIGIN_WHITELIST = [
-#      '*'
-# ]
 
 ROOT_URLCONF = "bp_server.urls"
 
@@ -119,6 +114,8 @@ REST_FRAMEWORK = {
         "rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly"
     ]
 }
+if not DEBUG:
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]=('rest_framework.renderers.JSONRenderer',)
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/

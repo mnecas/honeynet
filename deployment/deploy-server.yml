@@ -1,0 +1,10 @@
+---
+- name: Update web servers
+  hosts: webservers
+  remote_user: root
+
+  tasks:
+  - name: Ensure apache is at the latest version
+    ansible.builtin.package:
+      name: haproxy
+      state: present
