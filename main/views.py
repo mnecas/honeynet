@@ -235,7 +235,9 @@ class HoneynetAddView(TemplateView):
                 nic=form.cleaned_data.get("nic"),
                 switch=form.cleaned_data.get("switch"),
             )
-            return redirect(reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)}))
+            return redirect(
+                reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)})
+            )
         else:
             form = HoneynetForm()
             return render(request, "honeynet.html", {"form": form})

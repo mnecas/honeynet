@@ -115,7 +115,9 @@ REST_FRAMEWORK = {
     ]
 }
 if not DEBUG:
-    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"]=('rest_framework.renderers.JSONRenderer',)
+    REST_FRAMEWORK["DEFAULT_RENDERER_CLASSES"] = (
+        "rest_framework.renderers.JSONRenderer",
+    )
 
 # Internationalization
 # https://docs.djangoproject.com/en/4.0/topics/i18n/
