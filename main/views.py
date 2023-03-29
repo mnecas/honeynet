@@ -138,8 +138,8 @@ class DeleteData(View):
 
 
 class DeleteHoneynet(View):
-    def get(self, request, pk):
-        honeynet = Honeynet.objects.get(pk=pk)
+    def get(self, request, hn_pk):
+        honeynet = Honeynet.objects.get(pk=hn_pk)
         honeypots = Honeypot.objects.filter(honeynet__id=honeynet.id)
         if len(list(honeypots)) > 0:
             ansible = StartAnsible(honeypots, honeynet)
@@ -155,8 +155,8 @@ class DeleteHoneynet(View):
 
 
 class StartAnsibleDeploymentView(View):
-    def get(self, request, pk):
-        self.honeynet = get_object_or_404(Honeynet, pk=pk)
+    def get(self, request, hn_pk):
+        self.honeynet = get_object_or_404(Honeynet, pk=hn_pk)
         self.honeypots = Honeypot.objects.filter(honeynet=self.honeynet)
         ansible = StartAnsible(self.honeypots, self.honeynet)
         rc = ansible.start_deployment()
@@ -193,7 +193,7 @@ class HoneynetView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        honeynet = get_object_or_404(Honeynet, pk=kwargs["pk"])
+        honeynet = get_object_or_404(Honeynet, pk=kwargs["hn_pk"])
 
         context["honeynets"] = get_honeypots()
         context["form"] = HoneynetForm()
@@ -203,8 +203,8 @@ class HoneynetView(TemplateView):
         return context
 
     # Edit
-    def post(self, request, pk):
-        honeynet = Honeynet.objects.get(id=pk)
+    def post(self, request, hn_pk):
+        honeynet = Honeynet.objects.get(id=hn_pk)
         atrs = ["name", "hostname", "username", "password", "nic", "switch"]
         for atr in atrs:
             if request.POST.get(atr) != "":
@@ -227,7 +227,7 @@ class HoneynetAddView(TemplateView):
         # check whether it's valid:
 
         if form.is_valid():
-            Honeynet.objects.create(
+            honeynet = Honeynet.objects.create(
                 name=form.cleaned_data.get("name"),
                 username=form.cleaned_data.get("username"),
                 password=form.cleaned_data.get("password"),
@@ -235,7 +235,7 @@ class HoneynetAddView(TemplateView):
                 nic=form.cleaned_data.get("nic"),
                 switch=form.cleaned_data.get("switch"),
             )
-            return redirect(reverse("honeynets"))
+            return redirect(reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)}))
         else:
             form = HoneynetForm()
             return render(request, "honeynet.html", {"form": form})
@@ -248,7 +248,6 @@ class LoginView(View):
 
     def post(self, request):
         form = AuthenticationForm(request, data=request.POST)
-        print(request.POST)
         if form.is_valid():
             user = form.get_user()
             login(request, user)

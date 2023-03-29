@@ -19,17 +19,17 @@ urlpatterns = [
     path("logout/", login_required(LogoutView.as_view()), name="logout"),
     path("honeynets/", login_required(HoneynetAddView.as_view()), name="honeynets"),
     path(
-        "honeynets/<uuid:pk>/",
+        "honeynets/<uuid:hn_pk>/",
         login_required(HoneynetView.as_view()),
         name="honeynets_details",
     ),
     path(
-        "honeynets/<uuid:pk>/start",
+        "honeynets/<uuid:hn_pk>/start/",
         login_required(StartAnsibleDeploymentView.as_view()),
         name="honeynets_start",
     ),
     path(
-        "honeynets/<uuid:pk>/delete",
+        "honeynets/<uuid:hn_pk>/delete/",
         login_required(DeleteHoneynet.as_view()),
         name="honeynets_delete",
     ),
