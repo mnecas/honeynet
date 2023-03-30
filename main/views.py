@@ -134,7 +134,7 @@ class DeleteData(View):
             attack.delete()
         for dump in dumps:
             dump.delete()
-        return redirect(".")
+        return redirect(reverse("honeypots_detail", kwargs={"hn_pk": hn_pk, "hp_pk":hp_pk}))
 
 
 class DeleteHoneynet(View):
