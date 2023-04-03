@@ -36,12 +36,20 @@
         </div>
         <div class="modal-footer">
           {% if item != None %}
-            <a class="btn btn-danger" href="honeypots/{{ item.id }}/delete">Delete</a>
             <button type="submit" class="btn btn-primary">Edit</button>
           {% else %}
             <button type="submit" class="btn btn-primary">Add</button>
           {% endif %}
         </div>
+        <div class="modal-footer">
+        </form>
+          <form action="honeypots/{{ item.id }}/delete/" method="post">
+            {% csrf_token %}
+            <input type="checkbox" id="cleanup" name="cleanup"> Cleanup</input>
+            <button type="submit"class="btn btn-danger">Delete</button>
+          </form>
+        </div>
+      </div>
       </form>
     </div>
   </div>

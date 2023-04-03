@@ -5,9 +5,10 @@ from main.views import (
     HoneypotView,
     ExportView,
     DeleteData,
+    DeleteHoneynet,
+    DeleteHoneypot,
     HoneynetAddView,
     HoneynetView,
-    DeleteHoneynet,
     StartAnsibleDeploymentView,
     HoneypotAddView,
     LogoutView,
@@ -45,6 +46,11 @@ urlpatterns = [
     ),
     path(
         "honeynets/<uuid:hn_pk>/honeypots/<uuid:hp_pk>/delete/",
+        login_required(DeleteHoneypot.as_view()),
+        name="honeypots_delete",
+    ),
+    path(
+        "honeynets/<uuid:hn_pk>/honeypots/<uuid:hp_pk>/delete/data",
         login_required(DeleteData.as_view()),
         name="honeypots_deletedata",
     ),

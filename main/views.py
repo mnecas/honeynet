@@ -114,16 +114,23 @@ class ExportView(View):
         return response
 
 
-class DeleteData(View):
-    def get(self, request, hn_pk, hp_pk):
+
+class DeleteHoneypot(View):
+    def post(self, request, hn_pk, hp_pk):
+        print(request.POST)
         honeypot = Honeypot.objects.get(pk=hp_pk)
         honeynet = get_object_or_404(Honeynet, pk=hn_pk)
-        ansible = StartAnsible([honeypot], honeynet)
-        rc = ansible.start_cleanup()
-        if rc == 0:
+        if request.GET.get('cleanup'):
+            ansible = StartAnsible([honeypot], honeynet)
+            rc = ansible.start_cleanup()
+            if rc == 0:
+                honeypot.delete()
+        else:
             honeypot.delete()
         return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
 
+
+class DeleteData(View):
     def post(self, request, hn_pk, hp_pk):
         dumps_ids = request.POST.getlist("dumps_checkboxes")
         attacks_ids = request.POST.getlist("attacks_checkboxes")
@@ -141,7 +148,7 @@ class DeleteHoneynet(View):
     def get(self, request, hn_pk):
         honeynet = Honeynet.objects.get(pk=hn_pk)
         honeypots = Honeypot.objects.filter(honeynet__id=honeynet.id)
-        if len(list(honeypots)) > 0:
+        if len(list(honeypots)) > 0 and request.GET.get('cleanup') == 'true':
             ansible = StartAnsible(honeypots, honeynet)
             rc = ansible.start_cleanup_all()
             if rc == 0:

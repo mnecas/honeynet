@@ -54,6 +54,7 @@
                 id="deletespinner_{{ item.id }}"
               ></span>
             </button>
+            <input type="checkbox" id="cleanup_{{ item.id }}" name="cleanup"> Cleanup</input>
           </td>
         </tr>
         {% endfor %}
@@ -77,7 +78,7 @@
   function sendData(id, endpoint) {
     toggle(id, endpoint, false);
     axios
-      .get("/honeynets/" + id + "/" + endpoint + "/")
+      .get("/honeynets/" + id + "/" + endpoint + "/?cleanup="+document.getElementById("cleanup_"+id).checked)
       .then((res) => {
         toggle(id, endpoint, true);
         if (res["data"]["rc"] != 0) {
