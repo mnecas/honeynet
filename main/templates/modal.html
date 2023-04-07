@@ -1,7 +1,11 @@
 <div class="modal fade" id="honeypotModal{% if item != None %}-{{ item.id }}{% endif %}" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
   <div class="modal-dialog">
     <div class="modal-content">
-      <form action="honeypots/{{ item.id }}" method="post">
+      {% if item != None %}
+      <form action="honeypots/{{ item.id }}/" method="post">
+      {% else %}
+      <form action="honeypots/" method="post">
+      {% endif %}
         {% csrf_token %}
         <div class="modal-header">
           <h5 class="modal-title">Create honeypot</h5>
@@ -12,6 +16,7 @@
             <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
             <input type="text" class="form-control" id="honeypot_name" name="name" placeholder="{{ item.name }}">
           </div>
+          <hr>
           <div class="mb-3">
             <label for="tcpdump" class="col-form-label"><b>Tcpdump filter:</b></label>
             <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump }}">
@@ -20,7 +25,6 @@
             <label for="docker_compose" class="col-form-label"><b>Docker compose:</b></label>
             <textarea class="form-control" name="compose" placeholder="{{ item.compose }}"></textarea>
           </div>
-          <hr>
           <div class="mb-3">
             <label for="ovf" class="col-form-label"><b>OVF:</b></label>
             <input type="text" class="form-control" name="ovf" placeholder="{{ item.ovf }}">
@@ -33,6 +37,16 @@
               <b>VM password:</b><input type="password" class="form-control" name="password"></input>
             </div>
           </div>
+          <div class="row">
+            <div class="col">
+              <b>SSH Port:</b><input type="text" class="form-control" name="sshport" placeholder="{{ item.ssh_port }}"></input>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <b>SSH key:</b><textarea type="text" class="form-control" name="sshkey"></textarea>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           {% if item != None %}
@@ -43,11 +57,13 @@
         </div>
         <div class="modal-footer">
         </form>
+        {% if item != None %}
           <form action="honeypots/{{ item.id }}/delete/" method="post">
             {% csrf_token %}
             <input type="checkbox" id="cleanup" name="cleanup"> Cleanup</input>
             <button type="submit"class="btn btn-danger">Delete</button>
           </form>
+          {% endif %}
         </div>
       </div>
       </form>

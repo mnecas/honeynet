@@ -17,29 +17,29 @@
 
 {% include "modal.html" %}
 <div class="m-4">
-  <form action="{% url 'honeynets' %}" method="post">
+  <form action="." method="post">
     {% csrf_token %}
     <div class="col">
-      <b>{{ form.name.label }}</b>{{ form.name }}
+      <b>Name:</b><input type="text" class="form-control" name="name" placeholder="{{ honeynet.name }}"></input>
     </div>
     <div class="row">
       <div class="col">
-        <b>{{ form.hostname.label }}</b>{{ form.hostname }}
+        <b>ESXi hostname:</b><input type="text" class="form-control" name="hostname" placeholder="{{ honeynet.hostname }}"></input>
       </div>
       <div class="col">
-        <b>{{ form.username.label }}</b>{{ form.username }}
+        <b>ESXi username:</b><input type="text" class="form-control" name="username" placeholder="{{ honeynet.username }}"></input>
       </div>
       <div class="col">
-        <b>{{ form.password.label }}</b>{{ form.password }}
+        <b>ESXi password:</b><input type="password" class="form-control" name="password"></input>
       </div>
     </div>
     <div class="row">
       <div class="col">
-        <b>{{ form.nic.label }}</b>{{ form.nic }}
+        <b>Physical nic:</b><input type="text" class="form-control" name="nic" placeholder="{{ honeynet.nic }}"></input>
       </div>
 
       <div class="col">
-        <b>{{ form.switch.label }}</b>{{ form.switch }}
+        <b>Switch name:</b><input type="text" class="form-control" name="switch" placeholder="{{ honeynet.switch }}"></input>
       </div>
     </div>
     <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>

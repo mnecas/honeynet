@@ -31,8 +31,10 @@
 - name: "Add ansible host: {{ item.vmware_vm_user }}"
   ansible.builtin.add_host:
     hostname: "{{ vm_addr }}"
-    ansible_ssh_user: "{{ item.vmware_vm_user | default(vmware_vm_user, true) }}"
-    ansible_ssh_pass: "{{ item.vmware_vm_pass | default(vmware_vm_pass, true) }}"
+    ansible_ssh_user: "{{ item.vmware_vm_user | default(omit) }}"
+    ansible_ssh_pass: "{{ item.vmware_vm_pass | default(omit) }}"
+    ansible_ssh_port: "{{ item.vmware_vm_ssh_port | default(omit) }}"
+    ansible_ssh_key: "{{ item.vmware_vm_ssh_key_file | default(omit) }}"
     group: added_hosts
 
 - set_fact:

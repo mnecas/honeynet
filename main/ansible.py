@@ -35,13 +35,15 @@ class StartAnsible:
                 os.mkdir(path)
                 with open(os.path.join(path, "docker-compose.yml"), "w+") as f:
                     f.write(honeypot.compose)
+                with open(os.path.join(path, "key"), "w+") as f:
+                    f.write(honeypot.ssh_key)
 
     def get_playbook_status_code(self):
-        with open(f"{self.path}/artifacts/{self.id}/rc") as f:
+        with open(os.path.join(self.path,"artifacts",self.id,"rc")) as f:
             return int(f.read())
 
     def get_playbook_stdout(self):
-        with open(f"{self.path}/artifacts/{self.id}/stdout") as f:
+        with open(os.path.join(self.path,"artifacts",self.id,"stdout")) as f:
             return f.read()
 
     def start_deployment(self):
@@ -68,15 +70,16 @@ class StartAnsible:
             "vms": [
                 {
                     "name": honeypot.name,
+                    "vmware_vm_ssh_key_file": os.path.join(self.path, str(honeypot.id), "key"),
+                    "vmware_vm_ssh_port": honeypot.ssh_port,
                     "token": str(Token.objects.get(user=honeypot.author)),
                     # "filter": honeypot.filter,
-                    "vmware_vm_user": honeypot.username,
-                    "vmware_vm_pass": honeypot.password,
+                    "vmware_vm_ssh_user": honeypot.username,
+                    "vmware_vm_ssh_pass": honeypot.password,
                     "tcpdump": honeypot.tcpdump,
+                    "ovf_image": honeypot.ovf,
                     "portgroup_name": "honeypots-portgroup",
-                    "compose_file": os.path.join(
-                        os.path.join(self.path, str(honeypot.id)), "docker-compose.yml"
-                    )
+                    "compose_file": os.path.join(self.path, str(honeypot.id), "docker-compose.yml")
                     if honeypot.compose
                     else None,
                 }

@@ -67,7 +67,7 @@ class HoneypotView(TemplateView):
 
     def post(self, request, hn_pk, hp_pk):
         honeypot = Honeypot.objects.get(id=hp_pk)
-        atrs = ["name", "username", "password", "ovf", "compose", "tcpdump"]
+        atrs = ["name", "username", "password", "ovf", "compose", "tcpdump", "ssh_port", "ssh_key"]
         for atr in atrs:
             if request.POST.get(atr) != "":
                 setattr(honeypot, atr, request.POST.get(atr))
@@ -203,7 +203,6 @@ class HoneynetView(TemplateView):
         honeynet = get_object_or_404(Honeynet, pk=kwargs["hn_pk"])
 
         context["honeynets"] = get_honeypots()
-        context["form"] = HoneynetForm()
         context["honeynet"] = honeynet
         context["selected"] = honeynet
         context["honeypots"] = Honeypot.objects.filter(honeynet=honeynet)
