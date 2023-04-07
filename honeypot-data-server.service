@@ -1,0 +1,12 @@
+[Unit]
+After=network.target
+
+[Service]
+Type=simple
+RestartSec=1
+Restart=on-failure
+WorkingDirectory=/home/mnecas/honeypot-data-server
+ExecStart=PROJECT_DIR=/home/mnecas/honeypot-data-server/ python3 manage.py runserver 127.0.0.1:8000
+
+[Install]
+WantedBy=multi-user.target

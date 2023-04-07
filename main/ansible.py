@@ -30,11 +30,12 @@ class StartAnsible:
 
     def store_docker_compose(self):
         for honeypot in self.honeypots:
+            path = os.path.join(self.path, str(honeypot.id))
+            os.mkdir(path)
             if honeypot.compose != "" and honeypot.compose != None:
-                path = os.path.join(self.path, str(honeypot.id))
-                os.mkdir(path)
                 with open(os.path.join(path, "docker-compose.yml"), "w+") as f:
                     f.write(honeypot.compose)
+            if honeypot.ssh_key != "" and honeypot.ssh_key != None:
                 with open(os.path.join(path, "key"), "w+") as f:
                     f.write(honeypot.ssh_key)
 
@@ -70,7 +71,8 @@ class StartAnsible:
             "vms": [
                 {
                     "name": honeypot.name,
-                    "vmware_vm_ssh_key_file": os.path.join(self.path, str(honeypot.id), "key"),
+                    "id": str(honeypot.id),
+                    "vmware_vm_ssh_key_file": os.path.join(self.path, str(honeypot.id), "key") if honeypot.ssh_key else None,
                     "vmware_vm_ssh_port": honeypot.ssh_port,
                     "token": str(Token.objects.get(user=honeypot.author)),
                     # "filter": honeypot.filter,

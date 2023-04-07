@@ -1,10 +1,32 @@
 ---
 - name: Deploy honeypots
   hosts: localhost
-
-  # vars_files:
-  #   # Contains encrypted `vcenter_password` varibale using ansible-vault
-  #   - passwords.yml
-
   roles:
     - deployment
+
+- name: Configure nodes
+  hosts: added_hosts
+  remote_user: "{{ ansible_ssh_user }}"
+  vars:
+    ansible_become_password: "{{ vmware_vm_ssh_pass | default(omit) }}"
+  tasks:
+
+    # Run in the honeypot VM
+    - block:
+      - name: Create a directory if it does not exist
+        ansible.builtin.file:
+          path: /tmp/{{ honeypot_name }}
+          state: directory
+          mode: '0755'
+
+      - name: Copy Docker Compose files
+        template:
+          src: "{{ compose_file }}"
+          dest: "/tmp/docker-compose.yml"
+
+      - name: Start Docker Compose
+        command: "docker compose -f /tmp/docker-compose.yml up -d"
+        register: output
+        ignore_errors: true
+      become: true
+      when: compose_file is defined and compose_file and compose_file != ""

@@ -7,7 +7,7 @@
     validate_certs: "{{ validate_certs }}"
     networks: "{u'VM Network':u'{{ item.portgroup_name }}'}"
     name: "{{ item.name }}"
-    ovf: "{{ item.ovf_image | default(ovf_image) }}"
+    ovf: "{{ item.ovf_image | default(ovf_image, true) }}"
     wait_for_ip_address: true
   delegate_to: localhost
   register: vm
@@ -28,46 +28,20 @@
 - set_fact:
     vm_addr: "{{ facts['virtual_machines'][0]['ip_address'] }}"
 
-- name: "Add ansible host: {{ item.vmware_vm_user }}"
-  ansible.builtin.add_host:
-    hostname: "{{ vm_addr }}"
-    ansible_ssh_user: "{{ item.vmware_vm_user | default(omit) }}"
-    ansible_ssh_pass: "{{ item.vmware_vm_pass | default(omit) }}"
-    ansible_ssh_port: "{{ item.vmware_vm_ssh_port | default(omit) }}"
-    ansible_ssh_key: "{{ item.vmware_vm_ssh_key_file | default(omit) }}"
-    group: added_hosts
-
 - set_fact:
     honeypots_ips: "{{ honeypots_ips + [vm_addr] }}"
   when: ishoneypot
 
-# Run in the honeypot VM
-- block:
-  - name: Create a directory if it does not exist
-    ansible.builtin.file:
-      path: /tmp/{{ item.name }}
-      state: directory
-      mode: '0755'
-
-  - name: Copy Docker Compose files
-    template:
-      src: "{{ item.compose_file }}"
-      dest: "/tmp/docker-compose.yml"
-
-  - name: Install docker
-    ansible.builtin.package:
-      name:
-        - docker
-        - docker-compose
-      state: present
-
-  - name: Start docker service
-    ansible.builtin.systemd:
-      state: started
-      name: docker.service
-
-  - name: Start Docker Compose
-    command: "docker-compose -f /tmp/docker-compose.yml up -d"
-    register: output
-  delegate_to: "{{ vm_addr }}"
-  when: item.compose_file is defined and item.compose_file and item.compose_file != ""
+- name: "Add ansible host: {{ item.vmware_vm_ssh_user }}"
+  ansible.builtin.add_host:
+    hostname: "{{ vm_addr }}"
+    ansible_ssh_user: "{{ item.vmware_vm_ssh_user | default(omit) }}"
+    ansible_password: "{{ item.vmware_vm_ssh_pass | default(omit) }}"
+    ansible_port: "{{ item.vmware_vm_ssh_port | default(omit) }}"
+    ansible_ssh_private_key_file: "{{ item.vmware_vm_ssh_key_file | default(omit) }}"
+    compose_file: "{{ item.compose_file }}"
+    honeypot_name: "{{ item.name }}"
+    data_vm_ip: "{{ data_vm_ip }}"
+    honeypots_ips: "{{ honeypots_ips }}"
+    vmware_vm_ssh_pass: "{{ vmware_vm_ssh_pass | default(omit)}}"
+    group: added_hosts

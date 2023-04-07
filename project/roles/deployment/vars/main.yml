@@ -1,4 +1,8 @@
 default_vms:
   - name: mirroring
     portgroup_name: honeypot-promisc
-    compose_file: files//docker-compose.yml.j2
+    compose_file: roles/deployment/files/docker-compose.yml.j2
+    vmware_vm_ssh_port: 35695
+    vmware_vm_ssh_user: mnecas
+    vmware_vm_ssh_key_file: roles/deployment/vars/id_ed25519
+    vmware_vm_ssh_pass: qum5net

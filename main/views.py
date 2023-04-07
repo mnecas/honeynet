@@ -188,6 +188,8 @@ class HoneypotAddView(View):
             honeynet=Honeynet.objects.get(id=hn_pk),
             username=request.POST.get("username"),
             password=request.POST.get("password"),
+            ssh_key=request.POST.get("ssh_key"),
+            ssh_port=request.POST.get("ssh_port"),
             tcpdump=request.POST.get("tcpdump"),
             ovf=request.POST.get("ovf"),
             compose=request.POST.get("compose"),
