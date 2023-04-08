@@ -3,6 +3,7 @@ import os
 import uuid
 import shutil
 import yaml
+import stat
 
 
 class StartAnsible:
@@ -36,8 +37,10 @@ class StartAnsible:
                 with open(os.path.join(path, "docker-compose.yml"), "w+") as f:
                     f.write(honeypot.compose)
             if honeypot.ssh_key != "" and honeypot.ssh_key != None:
+                print(repr(honeypot.ssh_key))
                 with open(os.path.join(path, "key"), "w+") as f:
-                    f.write(honeypot.ssh_key)
+                    f.write(str(honeypot.ssh_key.replace('\r', '')))
+                os.chmod(os.path.join(path, "key"), stat.S_IRUSR|stat.S_IWUSR)
 
     def get_playbook_status_code(self):
         with open(os.path.join(self.path,"artifacts",self.id,"rc")) as f:

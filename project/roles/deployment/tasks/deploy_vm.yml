@@ -43,5 +43,5 @@
     honeypot_name: "{{ item.name }}"
     data_vm_ip: "{{ data_vm_ip }}"
     honeypots_ips: "{{ honeypots_ips }}"
-    vmware_vm_ssh_pass: "{{ vmware_vm_ssh_pass | default(omit)}}"
+    vmware_vm_ssh_pass: "{{ item.vmware_vm_ssh_pass | default(omit)}}"
     group: added_hosts

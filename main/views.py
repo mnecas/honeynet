@@ -108,9 +108,9 @@ class ExportView(View):
                     for file in dumps_files:
                         tar.add(file, arcname=os.path.basename(file))
         # Load the temporary to memory
-        response = FileResponse(open(f.file.name, mode="rb"))
+        response = FileResponse(open(f.name, mode="rb"))
         # Cleanup before sending the file
-        os.remove(f.file.name)
+        os.remove(f.name)
         return response
 
 

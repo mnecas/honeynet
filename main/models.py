@@ -25,7 +25,7 @@ class Honeypot(models.Model):
     tcpdump = models.CharField(max_length=128, blank=True)
     password = models.CharField(max_length=128, blank=True)
     ssh_port = models.IntegerField(default=22)
-    ssh_key = models.CharField(max_length=512, blank=True)
+    ssh_key = models.TextField(blank=True)
 
 
 class Attacker(models.Model):
