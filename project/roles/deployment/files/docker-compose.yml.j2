@@ -6,8 +6,11 @@ services:
     environment:
       SERVER: '{{ data_vm_ip }}'
       DEBUG: 1
-      TCPDUMP_FILTER: "host {{ item.1 }}{% if item.0.tcpdump %} and {{ item.0.tcpdump }}{% endif %}"
+      TCPDUMP_FILTER: "host {{ item.1 }}{% if item.0.tcpdump_filter %} and {{ item.0.tcpdump_filter }}{% endif %}"
       TOKEN: "{{ item.0.token }}"
       ID: "{{ item.0.id }}"
+      TCPDUMP_MAX_SIZE: "{{ item.0.tcpdump_max_size }}"
+      TCPDUMP_TIMEOUT: "{{ item.0.tcpdump_timeout }}"
+      TCPDUMP_EXTRAARGS: "{{ item.0.tcpdump_extra_args }}"
     network_mode: host
 {% endfor %}

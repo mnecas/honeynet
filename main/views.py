@@ -67,7 +67,7 @@ class HoneypotView(TemplateView):
 
     def post(self, request, hn_pk, hp_pk):
         honeypot = Honeypot.objects.get(id=hp_pk)
-        atrs = ["name", "username", "password", "ovf", "compose", "tcpdump", "ssh_port", "ssh_key"]
+        atrs = ["name", "username", "password", "ovf", "compose", "tcpdump_timeout","tcpdump_max_size","tcpdump_extra_args","tcpdump_filter", "ssh_port", "ssh_key"]
         for atr in atrs:
             if request.POST.get(atr) != "":
                 setattr(honeypot, atr, request.POST.get(atr))
@@ -190,7 +190,10 @@ class HoneypotAddView(View):
             password=request.POST.get("password"),
             ssh_key=request.POST.get("ssh_key"),
             ssh_port=request.POST.get("ssh_port"),
-            tcpdump=request.POST.get("tcpdump"),
+            tcpdump_filter=request.POST.get("tcpdump_filter"),
+            tcpdump_timeout=request.POST.get("tcpdump_timeout"),
+            tcpdump_max_size=request.POST.get("tcpdump_max_size"),
+            tcpdump_extra_args=request.POST.get("tcpdump_extra_args"),
             ovf=request.POST.get("ovf"),
             compose=request.POST.get("compose"),
         )

@@ -81,7 +81,10 @@ class StartAnsible:
                     # "filter": honeypot.filter,
                     "vmware_vm_ssh_user": honeypot.username,
                     "vmware_vm_ssh_pass": honeypot.password,
-                    "tcpdump": honeypot.tcpdump,
+                    "tcpdump_filter": honeypot.tcpdump_filter,
+                    "tcpdump_timeout": honeypot.tcpdump_timeout,
+                    "tcpdump_max_size": honeypot.tcpdump_max_size,
+                    "tcpdump_extra_args": honeypot.tcpdump_extra_args,
                     "ovf_image": honeypot.ovf,
                     "portgroup_name": "honeypots-portgroup",
                     "compose_file": os.path.join(self.path, str(honeypot.id), "docker-compose.yml")

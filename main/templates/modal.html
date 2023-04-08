@@ -17,10 +17,27 @@
             <input type="text" class="form-control" id="honeypot_name" name="name" placeholder="{{ item.name }}">
           </div>
           <hr>
-          <div class="mb-3">
-            <label for="tcpdump" class="col-form-label"><b>Tcpdump filter:</b></label>
-            <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump }}">
+          <div class="row">
+            <div class="mb-3">
+              <label for="tcpdump" class="col-form-label"><b>Tcpdump filter:</b></label>
+              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_filter }}">
+            </div>
+            <div class="mb-3">
+              <label for="tcpdump" class="col-form-label"><b>Tcpdump timeout:</b></label>
+              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_timeout }}">
+            </div>
           </div>
+          <div class="row">
+            <div class="mb-3">
+              <label for="tcpdump" class="col-form-label"><b>Tcpdump max file size:</b></label>
+              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_max_size }}">
+            </div>
+            <div class="mb-3">
+              <label for="tcpdump" class="col-form-label"><b>Tcpdump extra args:</b></label>
+              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_extra_args }}">
+            </div>
+          </div>
+          <hr>
           <div class="mb-3">
             <label for="docker_compose" class="col-form-label"><b>Docker compose:</b></label>
             <textarea class="form-control" name="compose" placeholder="{{ item.compose }}"></textarea>
