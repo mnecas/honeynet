@@ -23,8 +23,8 @@ class Honeypot(models.Model):
     ovf = models.CharField(max_length=128, blank=True)
     username = models.CharField(max_length=128, blank=True)
     tcpdump_filter = models.CharField(max_length=128, blank=True)
-    tcpdump_timeout = models.IntegerField(default=3600)
-    tcpdump_max_size = models.IntegerField(default=100)
+    tcpdump_timeout = models.IntegerField(default=3600, blank=True, null=True)
+    tcpdump_max_size = models.IntegerField(default=100, blank=True, null=True)
     tcpdump_extra_args = models.CharField(max_length=512, blank=True)
     password = models.CharField(max_length=128, blank=True)
     ssh_port = models.IntegerField(default=22)
@@ -34,10 +34,15 @@ class Honeypot(models.Model):
 class Attacker(models.Model):
     source_addr = models.GenericIPAddressField()
     source_port = models.IntegerField()
-    mac = models.CharField(max_length=20)
 
     def __str__(self):
-        return " - ".join([str(self.source_addr), str(self.source_port), str(self.mac)])
+        return " - ".join([str(self.source_addr), str(self.source_port)])
+
+class HoneypotLog(models.Model):
+    honeypot = models.ForeignKey(Honeypot, on_delete=models.CASCADE)
+    log_level = models.CharField(max_length=128, blank=True)
+    message = models.CharField(max_length=128, blank=True)
+    time = models.DateTimeField(auto_now_add=True)
 
 
 class HoneypotAttack(models.Model):

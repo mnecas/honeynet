@@ -34,8 +34,12 @@ class StartAnsible:
             path = os.path.join(self.path, str(honeypot.id))
             os.mkdir(path)
             if honeypot.compose != "" and honeypot.compose != None:
-                with open(os.path.join(path, "docker-compose.yml"), "w+") as f:
-                    f.write(honeypot.compose)
+                data = yaml.safe_load(honeypot.compose)
+                for service in data["services"]:
+                    data["services"][service]["environment"]={'SERVER': '{{ data_vm_ip }}','TOKEN': str(Token.objects.get(user=honeypot.author)),'ID': str(honeypot.id)}
+
+                with open(os.path.join(path, "docker-compose.yml.j2"), "w+") as f:
+                    yaml.dump(data, f)
             if honeypot.ssh_key != "" and honeypot.ssh_key != None:
                 print(repr(honeypot.ssh_key))
                 with open(os.path.join(path, "key"), "w+") as f:
@@ -87,7 +91,7 @@ class StartAnsible:
                     "tcpdump_extra_args": honeypot.tcpdump_extra_args,
                     "ovf_image": honeypot.ovf,
                     "portgroup_name": "honeypots-portgroup",
-                    "compose_file": os.path.join(self.path, str(honeypot.id), "docker-compose.yml")
+                    "compose_file": os.path.join(self.path, str(honeypot.id), "docker-compose.yml.j2")
                     if honeypot.compose
                     else None,
                 }

@@ -11,10 +11,13 @@ honeypot_upload = HoneypotViewSet.as_view({"post": "upload"})
 
 honeypot_attack = HoneypotViewSet.as_view({"post": "attack"})
 
+honeypot_logs = HoneypotViewSet.as_view({"post": "logs"})
+
 urlpatterns = [
     # path("<uuid:pk>/", honeypot_detail, name="honeypot"),
     path("<uuid:pk>/upload", honeypot_upload, name="upload"),
     path("<uuid:pk>/attack", honeypot_attack, name="attack"),
+    path("<uuid:pk>/logs", honeypot_logs, name="logs"),
     # path("", honeypot_list, name="honeypots"),
     # path("api-auth/", include("rest_framework.urls")),
 ]

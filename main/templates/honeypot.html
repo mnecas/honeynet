@@ -8,6 +8,7 @@
   <hr/>
   <form action="{% url 'honeypots_export' honeynet.id honeypot.id %}" method="post">
     {% csrf_token %}
+    {% if attacks %}
     <h3>Specific data</h3>
     <div class="table-responsive">
       <table id="attack_table" class="table table-striped">
@@ -43,6 +44,40 @@
         </tbody>
       </table>
     </div>
+    {% endif %}
+    {% if logs %}
+    <hr />
+    <h3>Honeypot logs</h3>
+    <div class="table-responsive">
+      <table id="dump_table" class="table table-striped">
+        <thead>
+          <tr>
+            {% comment %} <th scope="col" width="5px">Select</th> {% endcomment %}
+            <th scope="col">time</th>
+            <th scope="col">Message</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for item in logs %}
+          <tr>
+            {% comment %} <td>
+              <input
+                class="form-check-input"
+                type="checkbox"
+                name="dumps_checkboxes"
+                value="{{ item.id }}"
+                id="flexCheckDefault"
+              />
+            </td> {% endcomment %}
+            <td>{{ item.time }}</td>
+            <td>{{ item.message }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+    {% if dumps %}
     <hr />
     <h3>tcpdumps</h3>
     <div class="table-responsive">
@@ -73,6 +108,7 @@
         </tbody>
       </table>
     </div>
+    {% endif %}
     <!-- Button trigger modal -->
     <button
       type="button"

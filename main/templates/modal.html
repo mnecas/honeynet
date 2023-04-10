@@ -18,23 +18,23 @@
           </div>
           <hr>
           <div class="row">
-            <div class="mb-3">
-              <label for="tcpdump" class="col-form-label"><b>Tcpdump filter:</b></label>
-              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_filter }}">
+            <div class="col">
+              <label for="tcpdump_filter" class="col-form-label"><b>Tcpdump filter:</b></label>
+              <input type="text" class="form-control" id="tcpdump_filter" name="tcpdump_filter" placeholder="{{ item.tcpdump_filter }}">
             </div>
-            <div class="mb-3">
-              <label for="tcpdump" class="col-form-label"><b>Tcpdump timeout:</b></label>
-              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_timeout }}">
+            <div class="col">
+              <label for="tcpdump_timeout" class="col-form-label"><b>Tcpdump timeout:</b></label>
+              <input type="text" class="form-control" id="tcpdump_timeout" name="tcpdump_timeout" placeholder="{{ item.tcpdump_timeout }}">
             </div>
           </div>
           <div class="row">
-            <div class="mb-3">
-              <label for="tcpdump" class="col-form-label"><b>Tcpdump max file size:</b></label>
-              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_max_size }}">
+            <div class="col">
+              <label for="tcpdump_max_size" class="col-form-label"><b>Tcpdump max file size:</b></label>
+              <input type="text" class="form-control" id="tcpdump_max_size" name="tcpdump_max_size" placeholder="{{ item.tcpdump_max_size }}">
             </div>
-            <div class="mb-3">
-              <label for="tcpdump" class="col-form-label"><b>Tcpdump extra args:</b></label>
-              <input type="text" class="form-control" id="tcpdump" name="tcpdump" placeholder="{{ item.tcpdump_extra_args }}">
+            <div class="col">
+              <label for="tcpdump_extra_args" class="col-form-label"><b>Tcpdump extra args:</b></label>
+              <input type="text" class="form-control" id="tcpdump_extra_args" name="tcpdump_extra_args" placeholder="{{ item.tcpdump_extra_args }}">
             </div>
           </div>
           <hr>
@@ -46,6 +46,7 @@
             <label for="ovf" class="col-form-label"><b>OVF:</b></label>
             <input type="text" class="form-control" name="ovf" placeholder="{{ item.ovf }}">
           </div>
+          <hr>
           <div class="row">
             <div class="col">
               <b>VM username:</b><input type="text" class="form-control" name="username" placeholder="{{ item.username }}"></input>

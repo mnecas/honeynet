@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views import View
 from django.views.generic.base import TemplateView
-from main.models import HoneypotAttack, Honeypot, AttackDump, Honeynet
+from main.models import HoneypotAttack, Honeypot, AttackDump, Honeynet, HoneypotLog
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from django.core.files.storage import FileSystemStorage
@@ -47,6 +47,7 @@ class HoneypotView(TemplateView):
         honeypot = get_object_or_404(Honeypot, pk=kwargs["hp_pk"])
         honeynet = get_object_or_404(Honeynet, pk=kwargs["hn_pk"])
         attacks = HoneypotAttack.objects.filter(honeypot=honeypot)
+        logs = HoneypotLog.objects.filter(honeypot=honeypot)
 
         keys = set()
         for attack in attacks:
@@ -62,6 +63,7 @@ class HoneypotView(TemplateView):
         context["token"] = token
         context["dumps"] = dumps
         context["attacks"] = attacks
+        context["logs"] = logs
         context["data_keys"] = keys
         return context
 
@@ -117,7 +119,6 @@ class ExportView(View):
 
 class DeleteHoneypot(View):
     def post(self, request, hn_pk, hp_pk):
-        print(request.POST)
         honeypot = Honeypot.objects.get(pk=hp_pk)
         honeynet = get_object_or_404(Honeynet, pk=hn_pk)
         if request.GET.get('cleanup'):
@@ -189,10 +190,10 @@ class HoneypotAddView(View):
             username=request.POST.get("username"),
             password=request.POST.get("password"),
             ssh_key=request.POST.get("ssh_key"),
-            ssh_port=request.POST.get("ssh_port"),
+            ssh_port=request.POST.get("ssh_port") or None,
             tcpdump_filter=request.POST.get("tcpdump_filter"),
-            tcpdump_timeout=request.POST.get("tcpdump_timeout"),
-            tcpdump_max_size=request.POST.get("tcpdump_max_size"),
+            tcpdump_timeout=request.POST.get("tcpdump_timeout") or 3600,
+            tcpdump_max_size=request.POST.get("tcpdump_max_size") or 100,
             tcpdump_extra_args=request.POST.get("tcpdump_extra_args"),
             ovf=request.POST.get("ovf"),
             compose=request.POST.get("compose"),
