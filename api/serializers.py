@@ -1,6 +1,6 @@
 from dataclasses import field
 from rest_framework import serializers
-from main.models import Honeypot, Attacker, HoneypotAttack, HoneypotLog
+from main.models import Honeypot, Attacker, HoneypotAttack
 
 
 class HoneypotSerializer(serializers.ModelSerializer):
@@ -19,8 +19,3 @@ class HoneypotAttackSerializer(serializers.ModelSerializer):
     class Meta:
         model = HoneypotAttack
         fields = ["data"]
-
-class HoneypotLogSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = HoneypotLog
-        fields = ["time", "log_level", "message"]

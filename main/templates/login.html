@@ -15,10 +15,6 @@
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      {% comment %} width: 100%;
-      max-width: 330px;
-      padding: 15px;
-      margin: auto; {% endcomment %}
   }
   .text-center{
     display: flex;
@@ -44,26 +40,8 @@
         </form>
       </div>
     </div>
-    {% comment %} </div>
-      <div class="d-flex justify-content-center">
-      <form role="form" class="form-horizontal" method="post" action="{% url 'login' %}">{% csrf_token %}
-        <div class="form-group">
-
-            <div class="input-group">
-              <label for="{{ form.username.id_for_label }}" class="col-form-label"><b>Username:</b></label><br>
-              <input class="form-control" id="{{ form.username.id_for_label }}" maxlength="30" name="{{ form.username.html_name }}" type="text" />
-              {{ form.username.errors }}
-            </div>
-            <div class="input-group">
-              <label for="{{ form.password.id_for_label }}" class="col-form-label"><b>Password:</b></label>
-            <input class="form-control" id="{{ form.password.id_for_label }}" maxlength="30" name="{{ form.password.html_name }}" type="password" />
-              {{ form.password.errors }}
-            </div>
-            <input type="submit" class="btn btn-primary" />
-        </div> {% endcomment %}
     </form>
   </div>
-    {% comment %} </main> {% endcomment %}
     <script src="{% static 'main/js/bootstrap.min.js' %}"></script>
   </body>
 </html>

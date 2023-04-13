@@ -1,10 +1,7 @@
 {% extends "base.html" %} {% block content %}
 
 <div class="m-4">
-  <div id="original-params">
-    <h3>{{ honeypot.name }}</h3>
-    <h4>Token: {{ token }}</h4>
-  </div>
+  {% include 'honeypot_form.html' %}
   <hr/>
   <form action="{% url 'honeypots_export' honeynet.id honeypot.id %}" method="post">
     {% csrf_token %}
@@ -52,7 +49,6 @@
       <table id="dump_table" class="table table-striped">
         <thead>
           <tr>
-            {% comment %} <th scope="col" width="5px">Select</th> {% endcomment %}
             <th scope="col">time</th>
             <th scope="col">Message</th>
           </tr>
@@ -60,15 +56,6 @@
         <tbody>
           {% for item in logs %}
           <tr>
-            {% comment %} <td>
-              <input
-                class="form-check-input"
-                type="checkbox"
-                name="dumps_checkboxes"
-                value="{{ item.id }}"
-                id="flexCheckDefault"
-              />
-            </td> {% endcomment %}
             <td>{{ item.time }}</td>
             <td>{{ item.message }}</td>
           </tr>
@@ -110,17 +97,19 @@
     </div>
     {% endif %}
     <!-- Button trigger modal -->
+    {% if dumps or attacks %}
     <button
       type="button"
       class="btn btn-outline-primary m-1"
       data-bs-toggle="modal"
       data-bs-target="#exampleModal"
     >
-      Export
+      Export data
     </button>
     <button class="btn btn-outline-danger m-1" type="submit" formaction="{% url 'honeypots_deletedata' honeynet.id honeypot.id %}">
-      Delete
+      Delete data
     </button>
+    {% endif %}
     <!-- Modal -->
     <div
       class="modal fade"

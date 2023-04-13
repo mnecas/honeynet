@@ -3,9 +3,8 @@ from api.serializers import (
     AttackerSerializer,
     HoneypotSerializer,
     HoneypotAttackSerializer,
-    HoneypotLogSerializer,
 )
-from main.models import Attacker, Honeypot, AttackDump, HoneypotLog
+from main.models import Attacker, Honeypot, AttackDump
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
 from rest_framework.parsers import FileUploadParser
@@ -97,20 +96,4 @@ class HoneypotViewSet(ModelViewSet):
             )
             honeypot_attack_serializer.save(honeypot=honeypot, attacker=attacker)
             return Response(status=201)
-        return Response(status=200)
-
-    @action(detail=True, methods=["post"])
-    def logs(self, request, *args, **kwargs):
-        honeypot = self.get_object()
-        data=copy.deepcopy(request.data)
-        print(data)
-        logs_serializer = HoneypotLogSerializer(data=data)
-        if logs_serializer.is_valid():
-            logs, created = HoneypotLog.objects.get_or_create(
-                honeypot=honeypot,
-                **logs_serializer.validated_data,
-            )
-            if created:
-                return Response(status=201)
-        print(data)
         return Response(status=200)

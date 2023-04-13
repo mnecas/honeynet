@@ -11,7 +11,6 @@
       <thead>
         <tr>
           <th scope="col">Name</th>
-          <th scope="col">Deployment</th>
           <th scope="col">Actions</th>
         </tr>
       </thead>
@@ -20,41 +19,18 @@
         <tr>
           <td>{{ item.name }}</td>
           <td>
-            <button
-              class="btn btn-sm btn-success"
-              id="startbtn_{{ item.id }}"
-              onclick="sendData('{{ item.id }}','start')"
-            >
-              Start
-              <span
-                class="spinner-border spinner-border-sm spinner"
-                role="status"
-                aria-hidden="true"
-                id="startspinner_{{ item.id }}"
-              ></span>
-            </button>
-          </td>
-          <td>
             <a
               type="button"
               href="{% url 'honeynets_details' item.id %}"
               class="btn btn-sm btn-info text-white"
               >Edit</a
             >
-            <button
-              id="deletebtn_{{ item.id }}"
-              onclick="sendData('{{ item.id }}','delete')"
+            <a
+              href="{% url 'honeynets_delete' item.id %}"
               class="btn btn-sm btn-danger"
             >
               Delete
-              <span
-                class="spinner-border spinner-border-sm spinner"
-                role="status"
-                aria-hidden="true"
-                id="deletespinner_{{ item.id }}"
-              ></span>
-            </button>
-            <input type="checkbox" id="cleanup_{{ item.id }}" name="cleanup"> Cleanup</input>
+          </a>
           </td>
         </tr>
         {% endfor %}
@@ -69,36 +45,5 @@
 />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-
-<script type="text/javascript">
-  $(document).ready(function () {
-    $("#honeypot_table").DataTable();
-  });
-
-  function sendData(id, endpoint) {
-    toggle(id, endpoint, false);
-    axios
-      .get("/honeynets/" + id + "/" + endpoint + "/?cleanup="+document.getElementById("cleanup_"+id).checked)
-      .then((res) => {
-        toggle(id, endpoint, true);
-        if (res["data"]["rc"] != 0) {
-          alert("Failed. Please checkout console");
-          console.log(res["data"]["stdout"]);
-        } else if (endpoint=="delete"){
-          window.location.replace("/");
-        }
-      })
-      .catch((errors) => console.log(errors));
-  }
-  function toggle(id, endpoint, state) {
-    document.getElementById(endpoint + "btn_" + id).disabled = !state;
-    x = document.getElementById(endpoint + "spinner_" + id);
-    if (!state) {
-      x.style.display = "inline-block";
-    } else {
-      x.style.display = "none";
-    }
-  }
-</script>
 
 {% endblock %}

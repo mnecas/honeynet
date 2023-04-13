@@ -1,8 +1,0 @@
----
-- name: Start deployment
-  include_tasks: deployment.yml
-  when: not cleanup
-
-- name: Cleanup enviroment
-  include_tasks: cleanup.yml
-  when: cleanup

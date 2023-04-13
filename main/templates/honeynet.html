@@ -15,52 +15,29 @@
   }
 </style>
 
-{% include "modal.html" %}
 <div class="m-4">
   <form action="." method="post">
     {% csrf_token %}
     <div class="col">
       <b>Name:</b><input type="text" class="form-control" name="name" placeholder="{{ honeynet.name }}"></input>
     </div>
-    <div class="row">
-      <div class="col">
-        <b>ESXi hostname:</b><input type="text" class="form-control" name="hostname" placeholder="{{ honeynet.hostname }}"></input>
-      </div>
-      <div class="col">
-        <b>ESXi username:</b><input type="text" class="form-control" name="username" placeholder="{{ honeynet.username }}"></input>
-      </div>
-      <div class="col">
-        <b>ESXi password:</b><input type="password" class="form-control" name="password"></input>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <b>Physical nic:</b><input type="text" class="form-control" name="nic" placeholder="{{ honeynet.nic }}"></input>
-      </div>
-
-      <div class="col">
-        <b>Switch name:</b><input type="text" class="form-control" name="switch" placeholder="{{ honeynet.switch }}"></input>
-      </div>
-    </div>
-    <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>
     {% if honeynet %}
     <hr>
     <div id="graphcontainer"></div>
     <hr>
     <div class="me-auto">
-      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#honeypotModal" id="add_honeypot_btn">
+      <a href="{% url 'honeypots' honeynet.id %}" class="btn btn-primary">
         Add Honeypot
-      </button>
+      </a>
+      <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>
     </div>
+    {% else %}
+    <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>
     {% endif %}
   </form>
 </div>
 
 
-<!-- Modal -->
-{% for item in honeypots %}
-{% include "modal.html" %}
-{% endfor %}
 <div id="demo"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
@@ -71,7 +48,6 @@
       {
         "id": "switch",
         "name": "VSwitch",
-        "type": "switch",
         "height": 50,
         "fill": {
           "src": "{% static 'main/switch.png' %}"
@@ -80,7 +56,6 @@
       {
         "id": "data",
         "name": "Data",
-        "type": "data",
         "height": 50,
         "fill": {
           "src": "{% static 'main/data.webp' %}"
@@ -89,11 +64,6 @@
       {
         "id": "mirroring",
         "name": "Mirroring",
-        "type": "mirroring",
-        "compose": "",
-        "ovf": "",
-        "vm_username": "",
-        "vm_password": "",
         "height": 50,
         "fill": {
           "src": "{% static 'main/mirroring.webp' %}"
@@ -104,10 +74,6 @@
         "id": "{{ honeypot.id }}",
         "name": "{{ honeypot.name }}",
         "type": "honeypot",
-        "compose": `{{ honeypot.compose }}`,
-        "ovf": "{{ honeypot.ovf }}",
-        "vm_username": "{{ honeypot.vm_username }}",
-        "vm_password": "{{ honeypot.vm_password }}",
         "height": 50,
         "fill": {
           "src": "{% static 'main/favicon.ico' %}"
@@ -162,8 +128,7 @@
         for (var i = 0; i < graphdata.nodes.length; i++) {
 {% for honeypot in honeypots %}
           if ("{{ honeypot.id }}" == tag.id  && graphdata.nodes[i].type == "honeypot") {
-            let myModal = new bootstrap.Modal(document.getElementById('honeypotModal-{{ honeypot.id }}'), {});
-            myModal.show();
+            window.location.replace('{% url 'honeypots_detail' honeynet.id honeypot.id %}');
             break;
           }
 {% endfor %}

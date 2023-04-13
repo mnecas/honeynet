@@ -9,7 +9,6 @@ from main.views import (
     DeleteHoneypot,
     HoneynetAddView,
     HoneynetView,
-    StartAnsibleDeploymentView,
     HoneypotAddView,
     LogoutView,
     LoginView,
@@ -23,11 +22,6 @@ urlpatterns = [
         "honeynets/<uuid:hn_pk>/",
         login_required(HoneynetView.as_view()),
         name="honeynets_details",
-    ),
-    path(
-        "honeynets/<uuid:hn_pk>/start/",
-        login_required(StartAnsibleDeploymentView.as_view()),
-        name="honeynets_start",
     ),
     path(
         "honeynets/<uuid:hn_pk>/delete/",
