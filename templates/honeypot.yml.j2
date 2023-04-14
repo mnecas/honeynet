@@ -2,9 +2,11 @@ version: '3.4'
 services:
   honeypot-{{ honeypot.name }}-{{ honeypot_id }}:
     image: {{ honeypot.image }}
-{% if honeypot.ports %}
+{% if honeypot_ports %}
     ports:
-      - "8000:8000"
+{% for port in honeypot_ports %}
+      - "{{ port }}"
+{% endfor %}
 {% endif %}
     networks:
       - {{ honeynet.name }}

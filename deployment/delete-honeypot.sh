@@ -1,5 +1,5 @@
 #!/bin/bash
-set -ex
+set -e
 
 HONEYPOT_PATH=${HONEYPOT_PATH:-$1}
 MONITORING_PATH=${MONITORING_PATH:-$2}

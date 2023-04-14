@@ -77,15 +77,15 @@ class HoneypotAddView(View):
             honeypot.save()
             return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
 
-
         honeynet = get_object_or_404(Honeynet, pk=hn_pk)
         resp = {}
         resp["honeynets"] = get_honeypots()
         resp["selected"] = honeynet
         resp["honeypot"] = honeypot
-        resp["error"] = result.stderr
+        resp["error_lines"] = result.stderr.decode().split("\n")
 
         return render(request, "honeypots.html", resp)
+
 
 class HoneypotView(TemplateView):
     template_name = "honeypot.html"
