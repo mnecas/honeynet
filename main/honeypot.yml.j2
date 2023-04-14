@@ -1,7 +1,0 @@
-version: '3.4'
-services:
-{% for item in honeypots %}
-  {{ item.name }}-{{ item.id }}:
-    image: {{ item.image }}
-    network_mode: host
-{% endfor %}

@@ -21,7 +21,6 @@ from main.management.commands.config import Command as HoneypotGroupInit
 
 class HoneypotPermissionsTests(APITestCase):
     def setUp(self):
-
         if not Group.objects.filter(name="honeypot").exists():
             HoneypotGroupInit().handle()
         honeypot_group = Group.objects.get(name="honeypot")
@@ -31,34 +30,29 @@ class HoneypotPermissionsTests(APITestCase):
         )
         user1.groups.add(honeypot_group)
 
-
         user2 = User.objects.create_user(
             username="honeypot-{}".format(str(uuid.uuid4()))
         )
         user2.groups.add(honeypot_group)
-        self.user2_id=user2.pk
+        self.user2_id = user2.pk
 
         # self.user1_token = resp["token"]
         # self.user1_id = resp["id"]
         # self.user2_token = resp["token"]
         # self.user2_id = resp["id"]
-        hn=Honeynet.objects.create(
+        hn = Honeynet.objects.create(
             name="test",
         )
-        hp1=Honeypot.objects.create(
+        hp1 = Honeypot.objects.create(
             name="test1",
             honeynet=hn,
             author=user1,
         )
-        hp2=Honeypot.objects.create(
-            name="test2",
-            honeynet=hn,
-            author=user2
-        )
-        self.user1_token=str(Token.objects.create(user=user1))
-        self.user1_id=hp1.id
-        self.user2_token=str(Token.objects.create(user=user2))
-        self.user2_id=hp2.id
+        hp2 = Honeypot.objects.create(name="test2", honeynet=hn, author=user2)
+        self.user1_token = str(Token.objects.create(user=user1))
+        self.user1_id = hp1.id
+        self.user2_token = str(Token.objects.create(user=user2))
+        self.user2_id = hp2.id
 
     def test_honeypot_user_token(self):
         user_from_token = Token.objects.get(key=self.user1_token).user
@@ -78,7 +72,7 @@ class HoneypotPermissionsTests(APITestCase):
             },
             "data": {"test": "test"},
         }
-        url = reverse("attack", kwargs={"pk":self.user1_id})
+        url = reverse("attack", kwargs={"pk": self.user1_id})
         # Test with correct token
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.post(url, data, format="json")
@@ -95,7 +89,7 @@ class HoneypotPermissionsTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
 
     def test_get_attack(self):
-        url = reverse("attack", kwargs={"pk":self.user1_id})
+        url = reverse("attack", kwargs={"pk": self.user1_id})
         # Test with correct token
         self.client.credentials(HTTP_AUTHORIZATION="Token " + self.user1_token)
         response = self.client.get(url)

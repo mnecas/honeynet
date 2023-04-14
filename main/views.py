@@ -13,7 +13,8 @@ from main.management.commands.config import Command as HoneypotGroupInit
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
-from .forms import HoneynetForm, HoneypotForm
+from main.tools.deployment import HoneypotDeployment
+from main.forms import HoneynetForm, HoneypotForm
 import tarfile
 import os
 import json
@@ -37,6 +38,54 @@ class IndexView(TemplateView):
         context["honeynets"] = get_honeypots()
         return context
 
+
+class HoneypotAddView(View):
+    template_name = "honeypots.html"
+
+    def get(self, request, hn_pk):
+        honeynet = get_object_or_404(Honeynet, pk=hn_pk)
+        resp = {}
+        resp["honeynets"] = get_honeypots()
+        resp["selected"] = honeynet
+        return render(request, "honeypots.html", resp)
+
+    def post(self, request, hn_pk):
+        if not Group.objects.filter(name="honeypot").exists():
+            HoneypotGroupInit().handle()
+        honeypot_group = Group.objects.get(name="honeypot")
+        user = User.objects.create_user(
+            username="honeypot-{}".format(str(uuid.uuid4()))
+        )
+        user.groups.add(honeypot_group)
+        Token.objects.create(user=user)
+        honeypot = Honeypot(
+            id=uuid.uuid4(),
+            name=request.POST.get("name"),
+            author=user,
+            honeynet=Honeynet.objects.get(id=hn_pk),
+            tcpdump_filter=request.POST.get("tcpdump_filter"),
+            tcpdump_timeout=int(request.POST.get("tcpdump_timeout", 3600)),
+            tcpdump_max_size=int(request.POST.get("tcpdump_max_size", 100)),
+            tcpdump_extra_args=request.POST.get("tcpdump_extra_args"),
+            image=request.POST.get("image"),
+            ports=request.POST.get("ports"),
+        )
+
+        deployment = HoneypotDeployment(honeypot)
+        result = deployment.up()
+        if result.returncode == 0:
+            honeypot.save()
+            return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
+
+
+        honeynet = get_object_or_404(Honeynet, pk=hn_pk)
+        resp = {}
+        resp["honeynets"] = get_honeypots()
+        resp["selected"] = honeynet
+        resp["honeypot"] = honeypot
+        resp["error"] = result.stderr
+
+        return render(request, "honeypots.html", resp)
 
 class HoneypotView(TemplateView):
     template_name = "honeypot.html"
@@ -70,8 +119,8 @@ class HoneypotView(TemplateView):
         honeypot.update(
             name=request.POST.get("name"),
             tcpdump_filter=request.POST.get("tcpdump_filter"),
-            tcpdump_timeout=request.POST.get("tcpdump_timeout"),
-            tcpdump_max_size=request.POST.get("tcpdump_max_size"),
+            tcpdump_timeout=int(request.POST.get("tcpdump_timeout", 3600)),
+            tcpdump_max_size=int(request.POST.get("tcpdump_max_size", 100)),
             tcpdump_extra_args=request.POST.get("tcpdump_extra_args"),
             image=request.POST.get("image"),
             ports=request.POST.get("ports"),
@@ -116,37 +165,6 @@ class ExportView(View):
         # Cleanup before sending the file
         os.remove(f.name)
         return response
-
-
-
-class HoneypotAddView(TemplateView):
-    template_name = "honeypots.html"
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context["honeynets"] = get_honeypots()
-        return context
-
-    def post(self, request, hn_pk):
-        if not Group.objects.filter(name="honeypot").exists():
-            HoneypotGroupInit().handle()
-        honeypot_group = Group.objects.get(name="honeypot")
-        user = User.objects.create_user(
-            username="honeypot-{}".format(str(uuid.uuid4()))
-        )
-        user.groups.add(honeypot_group)
-        Token.objects.create(user=user)
-        Honeypot.objects.create(
-            name=request.POST.get("name"),
-            author=user,
-            honeynet=Honeynet.objects.get(id=hn_pk),
-            tcpdump_filter=request.POST.get("tcpdump_filter"),
-            tcpdump_timeout=request.POST.get("tcpdump_timeout"),
-            tcpdump_max_size=request.POST.get("tcpdump_max_size"),
-            tcpdump_extra_args=request.POST.get("tcpdump_extra_args"),
-            image=request.POST.get("image"),
-            ports=request.POST.get("ports"),
-        )
-        return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
 
 
 class HoneynetView(TemplateView):
@@ -214,7 +232,9 @@ class DeleteData(View):
             attack.delete()
         for dump in dumps:
             dump.delete()
-        return redirect(reverse("honeypots_detail", kwargs={"hn_pk": hn_pk, "hp_pk":hp_pk}))
+        return redirect(
+            reverse("honeypots_detail", kwargs={"hn_pk": hn_pk, "hp_pk": hp_pk})
+        )
 
 
 class DeleteHoneynet(View):
@@ -222,6 +242,7 @@ class DeleteHoneynet(View):
         honeynet = Honeynet.objects.get(pk=hn_pk)
         honeynet.delete()
         return redirect("/")
+
 
 class LoginView(View):
     def get(self, request):

@@ -18,8 +18,13 @@
 <div class="m-4">
   <form action="." method="post">
     {% csrf_token %}
-    <div class="col">
-      <b>Name:</b><input type="text" class="form-control" name="name" placeholder="{{ honeynet.name }}"></input>
+    <div class="row">
+      <div class="col">
+        <b>Name:</b><input type="text" class="form-control" name="name" value="{{ honeynet.name }}"></input>
+      </div>
+      <div class="col">
+        <b>Subnet:</b><input type="text" class="form-control" name="subnet" value="{{ honeynet.subnet }}"></input>
+      </div>
     </div>
     {% if honeynet %}
     <hr>

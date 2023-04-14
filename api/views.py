@@ -23,6 +23,7 @@ import os
 import uuid
 import copy
 
+
 class HoneypotViewSet(ModelViewSet):
     queryset = Honeypot.objects.all()
     serializer_class = HoneypotSerializer
@@ -85,7 +86,7 @@ class HoneypotViewSet(ModelViewSet):
     @action(detail=True, methods=["post"])
     def attack(self, request, *args, **kwargs):
         honeypot = self.get_object()
-        data=copy.deepcopy(request.data)
+        data = copy.deepcopy(request.data)
         if not data.get("attacker"):
             return Response(status=400)
         attacker_serializer = AttackerSerializer(data=data.pop("attacker"))

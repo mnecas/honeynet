@@ -4,5 +4,3 @@ django-filter
 django-cors-headers
 pre-commit
 markdown
-pyVim
-PyVmomi

@@ -7,6 +7,8 @@ import uuid
 class Honeynet(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)
+    subnet = models.CharField(max_length=20, blank=True)
+
 
 class Honeypot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -20,12 +22,14 @@ class Honeypot(models.Model):
     tcpdump_max_size = models.IntegerField(default=100, blank=True, null=True)
     tcpdump_extra_args = models.CharField(max_length=512, blank=True)
 
+
 class Attacker(models.Model):
     source_addr = models.GenericIPAddressField()
     source_port = models.IntegerField()
 
     def __str__(self):
         return " - ".join([str(self.source_addr), str(self.source_port)])
+
 
 class HoneypotAttack(models.Model):
     honeypot = models.ForeignKey(Honeypot, on_delete=models.CASCADE)

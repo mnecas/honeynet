@@ -2,6 +2,7 @@ main/migrations/
 media/
 images/
 staticfiles-cdn/
+honeynets
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
