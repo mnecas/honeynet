@@ -21,7 +21,7 @@
   <div class="row">
     <div class="col">
       <label for="ip_addr" class="col-form-label"><b>IP:</b></label>
-      <input class="form-control" id="ip_addr" name="ip_addr" value="{{ honeypot.ip_addr }}">
+      <input class="form-control" id="ip_addr" name="ip_addr" value="{{ honeypot.ip_addr }}" {% if honeypot.ip_addr %} disabled {% endif %}>
     </div>
     <div class="col">
       <label for="ports" class="col-form-label"><b>Expose ports:</b></label>

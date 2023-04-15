@@ -10,7 +10,7 @@ services:
 {% endif %}
     networks:
       honeynet_bridge:
-{% if honeypot.ip_addr %}
+{% if honeypot.ip_addr and not update %}
         ipv4_address: {{ honeypot.ip_addr }}
 {% endif %}
 networks:

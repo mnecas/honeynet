@@ -57,13 +57,14 @@ class HoneynetDeployment:
 
 
 class HoneypotDeployment:
-    def __init__(self, honeypot):
+    def __init__(self, honeypot, update=False):
         self.honeypot_filename = "deployment/templates/honeypot.yml.j2"
         self.monitoring_filename = "deployment/templates/monitoring.yml.j2"
         # self.honeynet_root_dir = "/usr/share/honeynet"
         self.honeynet_root_dir = "honeynets"
         self.honeypot = honeypot
         self.client = docker.from_env()
+        self.update = update
 
         if not os.path.exists(self.honeynet_root_dir):
             os.makedirs(self.honeynet_root_dir)
@@ -127,6 +128,7 @@ class HoneypotDeployment:
             "honeypot_token": str(Token.objects.get(user=self.honeypot.author)),
             "honeypot_ports": list(self.honeypot.ports.split(",")),
             "honeynet": model_to_dict(self.honeypot.honeynet),
+            "update": self.update,
         }
         with open(dst_file, "w+") as f:
             f.write(template.render(data))

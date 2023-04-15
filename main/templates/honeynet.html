@@ -40,10 +40,13 @@
   </button>
   {% endif %}
 
+  {% if not honeynet %}
   <button class="btn btn-primary m-1 disable-buttons" id="submit-btn" onclick="submitHoneynet()">
     <span class="spinner-border spinner-border-sm myspinner" role="status" aria-hidden="true" id="submit-spinner"></span>
     <span class="sr-only">Submit</span>
   </button>
+  {% endif %}
+
   {% if honeynet and honeynet.id %}
   <button class="btn btn-danger disable-buttons" id="delete-btn" onclick="deleteHoneynet()">
     <span class="spinner-border spinner-border-sm myspinner" role="status" aria-hidden="true" id="delete-spinner"></span>

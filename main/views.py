@@ -129,7 +129,7 @@ class HoneypotView(TemplateView):
         for atr in atrs:
             setattr(honeypot, atr, request.POST.get(atr))
 
-        deployment = HoneypotDeployment(honeypot)
+        deployment = HoneypotDeployment(honeypot, update=True)
         ok, result = deployment.up()
         if ok and result.returncode == 0:
             honeypot.save()

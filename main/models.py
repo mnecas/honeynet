@@ -13,7 +13,7 @@ class Honeynet(models.Model):
 class Honeypot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(unique=True, max_length=128)
-    ip_addr = models.CharField(unique=True, max_length=16)
+    ip_addr = models.CharField(max_length=16)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     honeynet = models.ForeignKey(Honeynet, on_delete=models.CASCADE)
     image = models.CharField(max_length=128)
