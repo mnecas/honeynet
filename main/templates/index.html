@@ -25,12 +25,12 @@
               class="btn btn-sm btn-info text-white"
               >Edit</a
             >
-            <a
+            {% comment %} <a
               href="{% url 'honeynets_delete' item.id %}"
               class="btn btn-sm btn-danger"
             >
               Delete
-          </a>
+          </a> {% endcomment %}
           </td>
         </tr>
         {% endfor %}

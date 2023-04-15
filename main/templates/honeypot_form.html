@@ -1,16 +1,27 @@
 
-<form action="." method="post">
+<style type="text/css">
+.myspinner {
+  display: none;
+}
+</style>
+
+<form action="." method="post" id="honeypot-form">
   {% csrf_token %}
   <h5 class="modal-title">Create honeypot</h5>
-  <div class="ml-3">
-    <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
-    <input class="form-control" id="honeypot_name" name="name" value="{{ honeypot.name }}">
-  </div>
-
   <div class="row">
+    <div class="col">
+      <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
+      <input class="form-control" id="honeypot_name" name="name" value="{{ honeypot.name }}">
+    </div>
     <div class="col">
       <label for="image" class="col-form-label"><b>Docker image:</b></label>
       <input class="form-control" id="image" name="image" value="{{ honeypot.image }}">
+    </div>
+  </div>
+  <div class="row">
+    <div class="col">
+      <label for="ip_addr" class="col-form-label"><b>IP:</b></label>
+      <input class="form-control" id="ip_addr" name="ip_addr" value="{{ honeypot.ip_addr }}">
     </div>
     <div class="col">
       <label for="ports" class="col-form-label"><b>Expose ports:</b></label>
@@ -52,9 +63,48 @@
     {% endfor %}
   </div>
   {% endif %}
-  <br>
-  <button type="submit" class="btn btn-primary m-1">Submit</button>
-  {% if honeypot and honeynet.id %}
-    <a href="delete/" class="btn btn-danger m-1">Delete</a>
-  {% endif %}
 </form>
+
+<br>
+<button class="btn btn-primary m-1" id="submit-btn" onclick="submitHoneypot()">
+  <span class="spinner-border spinner-border-sm myspinner" role="status" aria-hidden="true" id="submit-spinner"></span>
+  <span class="sr-only">Submit</span>
+</button>
+{% if honeypot and honeypot.id %}
+<button class="btn btn-danger" id="delete-btn" onclick="deleteHoneypot()">
+  <span class="spinner-border spinner-border-sm myspinner" role="status" aria-hidden="true" id="delete-spinner"></span>
+  <span class="sr-only">Delete</span>
+</button>
+{% endif %}
+
+<script>
+  let form = document.getElementById("honeypot-form");
+  let submitSpinner = document.getElementById("submit-spinner");
+  let deleteSpinner = document.getElementById("delete-spinner");
+  let submitBtn = document.getElementById("submit-btn");
+  let delteBtn = document.getElementById("delete-btn")
+
+  function showSpinner(spinner){
+    spinner.style.display="inline-block";
+  }
+
+  function disableButtons(...btns){
+    for (const btn of btns) {
+      btn.disabled = true;
+    }
+  }
+
+  function deleteHoneypot() {
+    disableButtons(submitBtn, delteBtn);
+    showSpinner(deleteSpinner);
+    window.location.href = 'delete/';
+  }
+
+  function submitHoneypot(){
+    if (delteBtn == null) disableButtons(submitBtn);
+    else disableButtons(submitBtn, delteBtn)
+    showSpinner(submitSpinner);
+    form.submit();
+  }
+
+</script>

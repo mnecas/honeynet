@@ -11,38 +11,61 @@
     height: 500px;
     margin: 0;
     padding: 0;
-
+  }
+  .myspinner {
+    display: none;
   }
 </style>
 
 <div class="m-4">
-  <form action="." method="post">
+  <form action="." method="post" id="honeynet-form">
     {% csrf_token %}
     <div class="row">
       <div class="col">
-        <b>Name:</b><input type="text" class="form-control" name="name" value="{{ honeynet.name }}"></input>
+        <b>Name:</b><input type="text" class="form-control" name="name" value="{{ honeynet.name }}"  {% if honeynet %} disabled {%endif%}></input>
       </div>
       <div class="col">
-        <b>Subnet:</b><input type="text" class="form-control" name="subnet" value="{{ honeynet.subnet }}"></input>
+        <b>Subnet:</b><input type="text" class="form-control" name="subnet" value="{{ honeynet.subnet }}" {% if honeynet %} disabled {%endif%}></input>
       </div>
     </div>
     {% if honeynet %}
     <hr>
     <div id="graphcontainer"></div>
     <hr>
-    <div class="me-auto">
-      <a href="{% url 'honeypots' honeynet.id %}" class="btn btn-primary">
-        Add Honeypot
-      </a>
-      <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>
-    </div>
-    {% else %}
-    <button class="btn btn-outline-primary m-1" type="submit" id='main_submit_btn'>Submit</button>
     {% endif %}
   </form>
+  {% if honeynet %}
+  <button onclick="redir()" class="btn btn-outline-primary disable-buttons">
+    Add Honeypot
+  </button>
+  {% endif %}
+
+  <button class="btn btn-primary m-1 disable-buttons" id="submit-btn" onclick="submitHoneynet()">
+    <span class="spinner-border spinner-border-sm myspinner" role="status" aria-hidden="true" id="submit-spinner"></span>
+    <span class="sr-only">Submit</span>
+  </button>
+  {% if honeynet and honeynet.id %}
+  <button class="btn btn-danger disable-buttons" id="delete-btn" onclick="deleteHoneynet()">
+    <span class="spinner-border spinner-border-sm myspinner" role="status" aria-hidden="true" id="delete-spinner"></span>
+    <span class="sr-only">Delete</span>
+  </button>
+  {% endif %}
+
+  {% if error %}
+  <br>
+  <div class="alert alert-danger" role="alert">
+    {{ error }}
+  </div>
+  {% endif %}
+  {% if error_lines %}
+  <br>
+  <div class="alert alert-danger" role="alert">
+    {% for error in error_lines %}
+      {{ error }}<br/>
+    {% endfor %}
+  </div>
+  {% endif %}
 </div>
-
-
 <div id="demo"></div>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
@@ -52,12 +75,12 @@
     "nodes": [
       {
         "id": "switch",
-        "name": "VSwitch",
+        //"name": "VSwitch",
         "height": 50,
         "fill": {
           "src": "{% static 'main/switch.png' %}"
         }
-      },
+      }/*,,
       {
         "id": "data",
         "name": "Data",
@@ -65,15 +88,15 @@
         "fill": {
           "src": "{% static 'main/data.webp' %}"
         }
-      },
-      {
+      }
+      ,{
         "id": "mirroring",
         "name": "Mirroring",
         "height": 50,
         "fill": {
           "src": "{% static 'main/mirroring.webp' %}"
         }
-      }
+      }*/
       {% for honeypot in honeypots %}
       ,{
         "id": "{{ honeypot.id }}",
@@ -141,5 +164,37 @@
       }
     }
   });
+
+  let form = document.getElementById("honeynet-form");
+  let submitSpinner = document.getElementById("submit-spinner");
+  let deleteSpinner = document.getElementById("delete-spinner");
+  let submitBtn = document.getElementById("submit-btn");
+  let delteBtn = document.getElementById("delete-btn")
+
+  function showSpinner(spinner){
+    spinner.style.display="inline-block";
+  }
+
+  function disableButtons(){
+    let btns = document.getElementsByClassName("disable-buttons")
+    for (const btn of btns) {
+      btn.disabled = true;
+    }
+  }
+
+  function deleteHoneynet() {
+    disableButtons();
+    showSpinner(deleteSpinner);
+    window.location.href = 'delete/';
+  }
+
+  function submitHoneynet(){
+    disableButtons()
+    showSpinner(submitSpinner);
+    form.submit();
+  }
+  function redir(){
+    window.location.href="{% if honeynet %}{% url 'honeypots' honeynet.id %}{% endif %}"
+  };
 </script>
 {% endblock %}

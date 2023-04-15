@@ -13,7 +13,7 @@ from main.management.commands.config import Command as HoneypotGroupInit
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
-from main.tools.deployment import HoneypotDeployment
+from main.tools.deployment import HoneypotDeployment, HoneynetDeployment
 from main.forms import HoneynetForm, HoneypotForm
 import tarfile
 import os
@@ -72,8 +72,9 @@ class HoneypotAddView(View):
         )
 
         deployment = HoneypotDeployment(honeypot)
-        result = deployment.up()
+        ok, result = deployment.up()
         if result.returncode == 0:
+            honeypot.ip_addr = deployment.get_ip()
             honeypot.save()
             return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
 
@@ -113,19 +114,35 @@ class HoneypotView(TemplateView):
         context["data_keys"] = keys
         return context
 
-    # Edit the honeypot
+    # Edit/update the honeypot
     def post(self, request, hn_pk, hp_pk):
-        honeypot = Honeypot.objects.filter(id=hp_pk)
-        honeypot.update(
-            name=request.POST.get("name"),
-            tcpdump_filter=request.POST.get("tcpdump_filter"),
-            tcpdump_timeout=int(request.POST.get("tcpdump_timeout", 3600)),
-            tcpdump_max_size=int(request.POST.get("tcpdump_max_size", 100)),
-            tcpdump_extra_args=request.POST.get("tcpdump_extra_args"),
-            image=request.POST.get("image"),
-            ports=request.POST.get("ports"),
-        )
-        return redirect(".")
+        honeypot = get_object_or_404(Honeypot, id=hp_pk)
+        atrs = [
+            "name",
+            "image",
+            "tcpdump_timeout",
+            "tcpdump_max_size",
+            "tcpdump_extra_args",
+            "tcpdump_filter",
+            "ports",
+        ]
+        for atr in atrs:
+            setattr(honeypot, atr, request.POST.get(atr))
+
+        deployment = HoneypotDeployment(honeypot)
+        ok, result = deployment.up()
+        if ok and result.returncode == 0:
+            honeypot.save()
+            return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
+
+        honeynet = get_object_or_404(Honeynet, pk=hn_pk)
+        resp = {}
+        resp["honeynets"] = get_honeypots()
+        resp["selected"] = honeynet
+        resp["honeypot"] = honeypot
+        resp["error_lines"] = result.stderr.decode().split("\n")
+
+        return render(request, "honeypots.html", resp)
 
 
 class ExportView(View):
@@ -180,14 +197,6 @@ class HoneynetView(TemplateView):
         context["honeypots"] = Honeypot.objects.filter(honeynet=honeynet)
         return context
 
-    # Edit
-    def post(self, request, hn_pk):
-        honeynet = Honeynet.objects.get(id=hn_pk)
-        if request.POST.get("name") != "":
-            honeynet.name = request.POST.get("name")
-        honeynet.save()
-        return redirect(".")
-
 
 class HoneynetAddView(TemplateView):
     template_name = "honeynet.html"
@@ -203,12 +212,24 @@ class HoneynetAddView(TemplateView):
         # check whether it's valid:
 
         if form.is_valid():
-            honeynet = Honeynet.objects.create(
-                name=form.cleaned_data.get("name"),
+            honeynet = Honeynet(
+                id=uuid.uuid4(),
+                name=request.POST.get("name"),
+                subnet=request.POST.get("subnet"),
             )
-            return redirect(
-                reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)})
-            )
+            deployment = HoneynetDeployment(honeynet)
+            try:
+                deployment.up()
+                honeynet.subnet = deployment.get_subnet()
+                honeynet.save()
+                return redirect(
+                    reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)})
+                )
+            except Exception as e:
+                resp = {}
+                resp["honeynets"] = get_honeypots()
+                resp["error"] = e
+                return render(request, "honeynet.html", resp)
         else:
             form = HoneynetForm()
             return render(request, "honeynet.html", {"form": form})
@@ -217,8 +238,21 @@ class HoneynetAddView(TemplateView):
 class DeleteHoneypot(View):
     def get(self, request, hn_pk, hp_pk):
         honeypot = Honeypot.objects.get(pk=hp_pk)
-        honeypot.delete()
-        return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
+
+        deployment = HoneypotDeployment(honeypot)
+        ok, result = deployment.down()
+        if ok:
+            honeypot.delete()
+            return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
+
+        honeynet = get_object_or_404(Honeynet, pk=hn_pk)
+        resp = {}
+        resp["honeynets"] = get_honeypots()
+        resp["selected"] = honeynet
+        resp["honeypot"] = honeypot
+        resp["error_lines"] = result.stderr.decode().split("\n")
+
+        return render(request, "honeypots.html", resp)
 
 
 class DeleteData(View):
@@ -240,8 +274,19 @@ class DeleteData(View):
 class DeleteHoneynet(View):
     def get(self, request, hn_pk):
         honeynet = Honeynet.objects.get(pk=hn_pk)
-        honeynet.delete()
-        return redirect("/")
+        deployment = HoneynetDeployment(honeynet)
+        try:
+            deployment.down()
+            honeynet.delete()
+            return redirect("/")
+        except Exception as e:
+            resp = {}
+            honeynet = get_object_or_404(Honeynet, pk=hn_pk)
+            resp["honeynets"] = get_honeypots()
+            resp["selected"] = honeynet
+            resp["honeynet"] = honeynet
+            resp["error"] = e
+            return render(request, "honeynet.html", resp)
 
 
 class LoginView(View):

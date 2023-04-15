@@ -2,19 +2,18 @@ version: '3.4'
 services:
   honeypot-{{ honeypot.name }}-{{ honeypot_id }}:
     image: {{ honeypot.image }}
-{% if honeypot_ports %}
+{% if honeypot_ports and honeypot_ports[0] %}
     ports:
 {% for port in honeypot_ports %}
       - "{{ port }}"
 {% endfor %}
 {% endif %}
     networks:
-      - {{ honeynet.name }}
-networks:
-  {{ honeynet.name }}:
-{% if honeynet.subnet %}
-    ipam:
-      driver: default
-      config:
-        - subnet: {{ honeynet.subnet }}
+      honeynet_bridge:
+{% if honeypot.ip_addr %}
+        ipv4_address: {{ honeypot.ip_addr }}
 {% endif %}
+networks:
+  honeynet_bridge:
+    external: true
+    name: {{ honeynet.name }}

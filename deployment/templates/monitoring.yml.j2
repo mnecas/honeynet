@@ -1,6 +1,6 @@
 version: '3.4'
 services:
-  honeypot-{{ honeypot.name }}-monitoring-{{ honeypot.id }}:
+  honeypot-{{ honeypot.name }}-monitoring-{{ honeypot_id }}:
     image: quay.io/mnecas0/honeypot-base:latest
     environment:
       DEBUG: 1

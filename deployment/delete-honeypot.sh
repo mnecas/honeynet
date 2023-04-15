@@ -14,8 +14,14 @@ then
   COMPOSE_CMD="docker compose"
 fi
 
-# Stop honeypot in custom network
+# Stop honeypot
 $COMPOSE_CMD -f $HONEYPOT_PATH down
 
 # Stop monitoring
 $COMPOSE_CMD -f $MONITORING_PATH down
+
+# Remove stopped honeypot
+$COMPOSE_CMD -f $HONEYPOT_PATH rm -f
+
+# Remove stopped  monitoring
+$COMPOSE_CMD -f $MONITORING_PATH rm -f
