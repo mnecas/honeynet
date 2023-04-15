@@ -1,0 +1,14 @@
+version: '3.4'
+services:
+  honeypot:
+    #image: quay.io/mnecas0/honeypot-base:latest
+    build: .
+    environment:
+      SERVER: '127.0.0.1:8000'
+      DEBUG: 1
+      TCPDUMP_FILTER: ''
+      TOKEN: '06f044faf163487db062cc9693bbc5f5700886fa'
+      ID: 'f3e80d8c-6bf7-4bf2-86b1-c157503bc406'
+   # ports:
+   #   - '123:123'
+    network_mode: host

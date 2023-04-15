@@ -4,6 +4,16 @@ from django.core.files.storage import FileSystemStorage
 import uuid
 
 
+class HoneypotLogging(models.Model):
+    address = models.CharField(max_length=128)
+    tls_ca_cert = models.CharField(max_length=128)
+    tls_cert = models.CharField(max_length=128)
+    tls_key = models.CharField(max_length=128)
+    tls_skip_verify = models.BooleanField()
+    tag = models.CharField(max_length=128)
+    format = models.CharField(max_length=128)
+    labels = models.CharField(max_length=128)
+
 class Honeynet(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)

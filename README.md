@@ -10,3 +10,5 @@ firewall-cmd --zone=public --add-service=http
 semanage permissive -a haproxy_t
 
 python3 manage.py runserver
+
+tshark -r capture.pcap -T ek > packets.json
