@@ -4,3 +4,4 @@ django-filter
 django-cors-headers
 pre-commit
 markdown
+docker
