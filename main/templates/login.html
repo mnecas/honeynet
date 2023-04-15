@@ -12,26 +12,26 @@
   <style type="text/css">
     .form-signin {
       position: absolute;
-      top: 50%;
+      top: 40%;
       left: 50%;
       transform: translate(-50%, -50%);
-  }
-  .text-center{
-    display: flex;
-  }
+    }
+    .text-center {
+      text-align: center;
+    }
   </style>
   <body>
     <div class="h-100 d-flex align-items-center justify-content-center">
       <div style="background:red">
-        </div class="form-signin">
+        <div class="form-signin">
         <form method="post" action="{% url 'login' %}">{% csrf_token %}
-          <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+          <h3 class="mb-3 fw-normal text-center">Please sign in</h1>
 
-          <div class="form-floating">
+          <div class="form-floating mb-2">
             <input type="text" class="form-control" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" placeholder="Username">
             <label for="{{ form.username.id_for_label }}" >Username</label>
           </div>
-          <div class="form-floating">
+          <div class="form-floating mb-2">
             <input type="password" class="form-control" name="{{ form.password.html_name }}"  id="{{ form.password.id_for_label }}" placeholder="Password">
             <label for="{{ form.password.id_for_label }}">Password</label>
           </div>
