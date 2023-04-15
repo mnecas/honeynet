@@ -8,6 +8,12 @@ services:
       - "{{ port }}"
 {% endfor %}
 {% endif %}
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "udp://10.10.80.231:514"
+        syslog-format: "rfc3164"
+        tag: "node-red2"
     networks:
       honeynet_bridge:
 {% if honeypot.ip_addr and not update %}

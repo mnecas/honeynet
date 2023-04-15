@@ -4,66 +4,95 @@
   display: none;
 }
 </style>
+<h5 class="modal-title">Create honeypot</h5>
+  <form action="." method="post" id="honeypot-form">
+    {% csrf_token %}
 
-<form action="." method="post" id="honeypot-form">
-  {% csrf_token %}
-  <h5 class="modal-title">Create honeypot</h5>
-  <div class="row">
-    <div class="col">
-      <label for="honeypot_name" class="col-form-label"><b>Honeypot name:</b></label>
-      <input class="form-control" id="honeypot_name" name="name" value="{{ honeypot.name }}">
+    <div class="row">
+      <div class="col">
+        <label for="honeypot_name" class="col-form-label"><b>*Honeypot name:</b></label>
+        <input class="form-control" id="honeypot_name" name="name" value="{{ honeypot.name }}">
+      </div>
+      <div class="col">
+        <label for="image" class="col-form-label"><b>*Docker image:</b></label>
+        <input class="form-control" id="image" name="image" value="{{ honeypot.image }}">
+      </div>
     </div>
-    <div class="col">
-      <label for="image" class="col-form-label"><b>Docker image:</b></label>
-      <input class="form-control" id="image" name="image" value="{{ honeypot.image }}">
+    <br>
+
+    <div class="card">
+      <div class="card-header" id="headingTwo">
+        <h5 class="mb-0">
+          <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+            Networking
+          </button>
+        </h5>
+      </div>
+      <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <label for="ip_addr" class="col-form-label"><b>IP:</b></label>
+              <input class="form-control" id="ip_addr" name="ip_addr" value="{{ honeypot.ip_addr }}" {% if honeypot.ip_addr %} disabled {% endif %}>
+            </div>
+            <div class="col">
+              <label for="ports" class="col-form-label"><b>Expose ports:</b></label>
+              <input class="form-control" id="ports" name="ports" value="{{ honeypot.ports }}">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <label for="ip_addr" class="col-form-label"><b>IP:</b></label>
-      <input class="form-control" id="ip_addr" name="ip_addr" value="{{ honeypot.ip_addr }}" {% if honeypot.ip_addr %} disabled {% endif %}>
+
+    <div class="card">
+      <div class="card-header" id="headingThree">
+        <h5 class="mb-0">
+          <button class="btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+            Tcpdump
+          </button>
+        </h5>
+      </div>
+      <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+        <div class="card-body">
+          <div class="row">
+            <div class="col">
+              <label for="tcpdump_filter" class="col-form-label"><b>Tcpdump filter:</b></label>
+              <input class="form-control" id="tcpdump_filter" name="tcpdump_filter" value="{{ honeypot.tcpdump_filter }}">
+            </div>
+            <div class="col">
+              <label for="tcpdump_timeout" class="col-form-label"><b>Tcpdump timeout:</b></label>
+              <input class="form-control" id="tcpdump_timeout" name="tcpdump_timeout" {% if honeypot.tcpdump_timeout %} value="{{ honeypot.tcpdump_timeout }}"{% else %} value=3600 {% endif %}>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label for="tcpdump_max_size" class="col-form-label"><b>Tcpdump max file size:</b></label>
+              <input class="form-control" id="tcpdump_max_size" name="tcpdump_max_size" {% if honeypot.tcpdump_max_size %} value="{{ honeypot.tcpdump_max_size }}"{% else %} value=100 {% endif %}>
+            </div>
+            <div class="col">
+              <label for="tcpdump_extra_args" class="col-form-label"><b>Tcpdump extra args:</b></label>
+              <input class="form-control" id="tcpdump_extra_args" name="tcpdump_extra_args" value="{{ honeypot.tcpdump_extra_args }}">
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="col">
-      <label for="ports" class="col-form-label"><b>Expose ports:</b></label>
-      <input class="form-control" id="ports" name="ports" value="{{ honeypot.ports }}">
+
+    {% if error %}
+    <br>
+    <div class="alert alert-danger" role="alert">
+      {{ error }}
     </div>
-  </div>
-  <br>
-  <div class="row">
-    <div class="col">
-      <label for="tcpdump_filter" class="col-form-label"><b>Tcpdump filter:</b></label>
-      <input class="form-control" id="tcpdump_filter" name="tcpdump_filter" value="{{ honeypot.tcpdump_filter }}">
+    {% endif %}
+    {% if error_lines %}
+    <br>
+    <div class="alert alert-danger" role="alert">
+      {% for error in error_lines %}
+        {{ error }}<br/>
+      {% endfor %}
     </div>
-    <div class="col">
-      <label for="tcpdump_timeout" class="col-form-label"><b>Tcpdump timeout:</b></label>
-      <input class="form-control" id="tcpdump_timeout" name="tcpdump_timeout" {% if honeypot.tcpdump_timeout %} value="{{ honeypot.tcpdump_timeout }}"{% else %} value=3600 {% endif %}>
-    </div>
-  </div>
-  <div class="row">
-    <div class="col">
-      <label for="tcpdump_max_size" class="col-form-label"><b>Tcpdump max file size:</b></label>
-      <input class="form-control" id="tcpdump_max_size" name="tcpdump_max_size" {% if honeypot.tcpdump_max_size %} value="{{ honeypot.tcpdump_max_size }}"{% else %} value=100 {% endif %}>
-    </div>
-    <div class="col">
-      <label for="tcpdump_extra_args" class="col-form-label"><b>Tcpdump extra args:</b></label>
-      <input class="form-control" id="tcpdump_extra_args" name="tcpdump_extra_args" value="{{ honeypot.tcpdump_extra_args }}">
-    </div>
-  </div>
-  {% if error %}
-  <br>
-  <div class="alert alert-danger" role="alert">
-    {{ error }}
-  </div>
-  {% endif %}
-  {% if error_lines %}
-  <br>
-  <div class="alert alert-danger" role="alert">
-    {% for error in error_lines %}
-      {{ error }}<br/>
-    {% endfor %}
-  </div>
-  {% endif %}
-</form>
+    {% endif %}
+  </form>
 
 <br>
 <button class="btn btn-primary m-1" id="submit-btn" onclick="submitHoneypot()">
