@@ -5,19 +5,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Honeypot</title>
-    <link href="{% static 'main/css/bootstrap.min.css' %}" rel="stylesheet" />
-    <link href="{% static 'main/dashboard.css' %}" rel="stylesheet" />
+    <link href="{% static 'bootstrap/css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'dashboard.css' %}" rel="stylesheet" />
     <link href="{% static 'main.css' %}" rel="stylesheet" />
     <link
       rel="shortcut icon"
       type="image/png"
-      href="{% static 'main/favicon.ico' %}"
+      href="{% static 'favicon.ico' %}"
     />
   </head>
   <body>
     {% include "sidebar.html" %}
     <main>{% block content %} {% endblock %}</main>
-    <script src="{% static 'main/js/bootstrap.min.js' %}"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
   </body>
 </html>

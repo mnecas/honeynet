@@ -1,9 +1,9 @@
 {% extends "base.html" %} {% block content %}
 
 {% load static %}
-<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-core.min.js"></script>
-<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-graph.min.js"></script>
-<script src="https://cdn.anychart.com/releases/8.8.0/js/anychart-data-adapter.min.js"></script>
+<script src="{% static 'anychart/anychart-core.min.js' %}"></script>
+<script src="{% static 'anychart/anychart-data-adapter.min.js' %}"></script>
+<script src="{% static 'anychart/anychart-graph.min.js' %}"></script>
 
 <style type="text/css">
   #graphcontainer {
@@ -105,8 +105,8 @@
   {% endif %}
 </div>
 <div id="demo"></div>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'jquery/jquery.min.js' %}"></script>
+<script src="{% static 'jquery/jquery.dataTables.min.js' %}"></script>
 
 <script>
   let graphdata = {
@@ -139,10 +139,11 @@
       ,{
         "id": "{{ honeypot.id }}",
         "name": "{{ honeypot.name }}",
+        "ip_addr": "{{ honeypot.ip_addr }}",
         "type": "honeypot",
         "height": 50,
         "fill": {
-          "src": "{% static 'main/favicon.ico' %}"
+          "src": "{% static 'favicon.ico' %}"
         }
       }
       {% endfor %}
@@ -180,7 +181,7 @@
   chart.nodes().labels().enabled(true);
 
   // configure the labels of nodes
-  chart.nodes().labels().format("{%name}");
+  chart.nodes().labels().format("{%name}-{%ip_addr}");
   chart.nodes().labels().fontSize(12);
   chart.nodes().labels().fontWeight(600);
   // draw the chart
@@ -203,12 +204,6 @@
     }
   });
 
-  let form = document.getElementById("honeynet-form");
-  let submitSpinner = document.getElementById("submit-spinner");
-  let deleteSpinner = document.getElementById("delete-spinner");
-  let submitBtn = document.getElementById("submit-btn");
-  let delteBtn = document.getElementById("delete-btn")
-
   function showSpinner(spinner){
     spinner.style.display="inline-block";
   }
@@ -221,12 +216,24 @@
   }
 
   function deleteHoneynet() {
+
+    let form = document.getElementById("honeynet-form");
+    let submitSpinner = document.getElementById("submit-spinner");
+    let deleteSpinner = document.getElementById("delete-spinner");
+    let submitBtn = document.getElementById("submit-btn");
+    let delteBtn = document.getElementById("delete-btn")
     disableButtons();
     showSpinner(deleteSpinner);
     window.location.href = 'delete/';
   }
 
   function submitHoneynet(){
+
+    let form = document.getElementById("honeynet-form");
+    let submitSpinner = document.getElementById("submit-spinner");
+    let deleteSpinner = document.getElementById("delete-spinner");
+    let submitBtn = document.getElementById("submit-btn");
+    let delteBtn = document.getElementById("delete-btn")
     disableButtons()
     showSpinner(submitSpinner);
     form.submit();

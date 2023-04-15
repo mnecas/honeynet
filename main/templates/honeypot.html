@@ -1,5 +1,6 @@
 {% extends "base.html" %} {% block content %}
 
+{% load static %}
 <div class="m-4">
   {% include 'honeypot_form.html' %}
   <hr/>
@@ -159,11 +160,11 @@
   </form>
 </div>
 <link
-  href="//cdn.datatables.net/1.12.1/css/jquery.dataTables.min.css"
+  href="{% static 'jquery.dataTables.min.css' %}"
   rel="stylesheet"
 />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="//cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+<script src="{% static 'jquery.min.js' %}"></script>
+<script src="{% static 'jquery.dataTables.min.js' %}"></script>
 
 <script>
   $(document).ready(function () {
