@@ -2,6 +2,7 @@ version: '3.4'
 services:
   honeypot-{{ honeypot.name }}-{{ honeypot_id }}:
     image: {{ honeypot.image }}
+    restart: always
 {% if honeypot_ports and honeypot_ports[0] %}
     ports:
 {% for port in honeypot_ports %}

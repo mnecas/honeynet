@@ -2,7 +2,7 @@ from django.shortcuts import render, redirect
 from django.http import JsonResponse
 from django.views import View
 from django.views.generic.base import TemplateView
-from main.models import HoneypotAttack, Honeypot, AttackDump, Honeynet
+from main.models import HoneypotAttack, Honeypot, AttackDump, Honeynet, HoneypotExport
 from django.shortcuts import get_object_or_404
 from django.http import FileResponse
 from django.core.files.storage import FileSystemStorage
@@ -15,6 +15,8 @@ from django.contrib.auth import authenticate, login, logout
 from django.urls import reverse
 from main.tools.deployment import HoneypotDeployment, HoneynetDeployment
 from main.forms import HoneynetForm, HoneypotForm
+from crontab import CronTab, CronSlices
+from ftplib import FTP
 import tarfile
 import os
 import json
@@ -73,7 +75,7 @@ class HoneypotAddView(View):
 
         deployment = HoneypotDeployment(honeypot)
         ok, result = deployment.up()
-        if result.returncode == 0:
+        if result.returncode == 0 and ok:
             honeypot.ip_addr = deployment.get_ip()
             honeypot.save()
             return redirect(reverse("honeynets_details", kwargs={"hn_pk": hn_pk}))
@@ -197,6 +199,54 @@ class HoneynetView(TemplateView):
         context["honeypots"] = Honeypot.objects.filter(honeynet=honeynet)
         return context
 
+    def post(self, request, hn_pk):
+        honeynet = get_object_or_404(Honeynet, id=hn_pk)
+        try:
+            if request.POST.get("export_crontab") and not CronSlices.is_valid(request.POST.get("export_crontab")):
+                raise Exception("Invalid crontab format!")
+            if honeynet.export:
+                honeynet.export.address = request.POST.get("export_address")
+                honeynet.export.crontab = request.POST.get("export_crontab")
+                honeynet.export.username = request.POST.get("export_username")
+                if request.POST.get("export_password"):
+                    honeynet.export.password = request.POST.get("export_password")
+
+            elif request.POST.get("export_address") and \
+                request.POST.get("export_crontab") and \
+                request.POST.get("export_username") and \
+                request.POST.get("export_password"):
+                print(os.getcwd())
+                export = HoneypotExport(
+                    address=request.POST.get("export_address"),
+                    crontab=request.POST.get("export_crontab"),
+                    username=request.POST.get("export_username"),
+                    password=request.POST.get("export_password"),
+                )
+                honeynet.export = export
+
+            ftp = FTP(
+                host=honeynet.export.address,
+                user=honeynet.export.username,
+                passwd=honeynet.export.password
+            )
+            ftp.connect()
+
+            export_script = os.path.join(os.getcwd(),"deployment","export-data.sh")
+            cron = CronTab(tab=f"{honeynet.export.crontab} {export_script}")
+            # user=True adds to current user
+            cron.write_to_user(user=True)
+
+            honeynet.export.save()
+
+            return redirect(
+                reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)})
+            )
+        except Exception as e:
+            resp = {}
+            resp["honeynets"] = get_honeypots()
+            resp["honeynet"] = honeynet
+            resp["error"] = e
+            return render(request, "honeynet.html", resp)
 
 class HoneynetAddView(TemplateView):
     template_name = "honeynet.html"
@@ -219,6 +269,21 @@ class HoneynetAddView(TemplateView):
             )
             deployment = HoneynetDeployment(honeynet)
             try:
+                if request.POST.get("export_address") and request.POST.get("export_crontab") and request.POST.get("export_username") and request.POST.get("export_password"):
+                    ftp = FTP(host=request.POST.get("export_address"),user=request.POST.get("export_username"),passwd=request.POST.get("export_password"))
+                    ftp.connect()
+
+                    # with CronTab(user='root') as cron:
+                    #     job = cron.new(command='echo hello_world')
+                    #     job.minute.every(1)
+
+                    export = HoneypotExport.objects.create(
+                        address=request.POST.get("export_address"),
+                        crontab=request.POST.get("export_crontab"),
+                        username=request.POST.get("export_username"),
+                        password=request.POST.get("export_password"),
+                    )
+                    honeynet.export = export
                 deployment.up()
                 honeynet.subnet = deployment.get_subnet()
                 honeynet.save()

@@ -2,6 +2,7 @@ version: '3.4'
 services:
   honeypot-{{ honeypot.name }}-monitoring-{{ honeypot_id }}:
     image: quay.io/mnecas0/honeypot-base:latest
+    restart: always
     environment:
       DEBUG: 1
       SERVER: "127.0.0.1:8000"

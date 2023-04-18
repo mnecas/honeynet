@@ -18,34 +18,3 @@
 # apt install docker.io docker-compose -y
 
 
-
-
-# apt install openvswitch-common openvswitch-switch -y
-# ovs-vsctl add-br mybridge
-# ip link set mybridge up
-
-# ovs-vsctl add-port mybridge enp1s0
-# ip addr flush dev enp1s0
-# dhclient mybridge
-
-# Adding interface to docker
-# ip tuntap add mode tap vport1
-# ip link set dev vport1 up
-# ovs-docker add-port mybridge vport1 myContainer1
-#
-
-# ip a
-# apt install iproute2 -y
-# --cap-add=NET_ADMIN
-# ping
-# apt install iputils-ping -y
-
-
-# ip link add <p1-name> netns <p1-ns> type veth peer <p2-name> netns <p2-ns>
-
-# iptables -A FORWARD -i wlan0 -o wlan1
-
-# ip link set eth1 promisc on
-
-# network_id=$(docker network inspect -f {{.Id}} <network name>)
-# bridge_name="br-${network_id:0:12}"

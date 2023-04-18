@@ -21,6 +21,9 @@ class HoneynetDeployment:
         self.honeynet_dir = os.path.join(self.honeynet_root_dir, str(honeynet.id))
 
     def up(self):
+        if self.client.networks.list(names=[self.honeynet.name]):
+            raise Exception(f"The docker network '{self.honeynet.name}' already exists!")
+
         if self.honeynet.subnet:
             ipam_pool = docker.types.IPAMPool(
                 subnet=self.honeynet.subnet,
@@ -133,11 +136,19 @@ class HoneypotDeployment:
         with open(dst_file, "w+") as f:
             f.write(template.render(data))
 
-    def get_ip(self):
+    def get_honeypot_container_id(self):
         with open(os.path.join(self.honeypot_dir, "honeypot_id")) as f:
             honeypot_id = f.read()
+        return honeypot_id
+
+    def get_monitoring_container_id(self):
+        with open(os.path.join(self.honeypot_dir, "monitoring_id")) as f:
+            honeypot_id = f.read()
+        return honeypot_id
+
+    def get_ip(self):
         container_info = self.client.api.inspect_container(
-            str(honeypot_id).replace("\n", "")
+            str(self.get_honeypot_container_id()).replace("\n", "")
         )
         return container_info["NetworkSettings"]["Networks"][
             self.honeypot.honeynet.name

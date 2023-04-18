@@ -6,3 +6,6 @@ pre-commit
 markdown
 docker
 whitenoise
+jinja2
+croniter
+python-crontab

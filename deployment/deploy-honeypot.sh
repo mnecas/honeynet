@@ -33,3 +33,4 @@ export HONEYPOT_ADDR=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.I
 
 # Start monitoring
 $COMPOSE_CMD -f $MONITORING_PATH up -d
+echo $($COMPOSE_CMD -f $MONITORING_PATH ps -q) > $(dirname $HONEYPOT_PATH)/monitoring_id

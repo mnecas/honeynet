@@ -1,0 +1,57 @@
+
+<div class="card">
+  <div class="card-header" id="headingThree">
+    <h5 class="mb-0">
+      <button class="btn btn-link collapsed link-dark" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+        Logging
+      </button>
+    </h5>
+  </div>
+  <div id="collapseThree" class="collapse" aria-labelledby="headingThree" data-bs-parent="#accordionExample">
+    <div class="card-body">
+    {% comment %}   <h4>Syslog</h4>
+      <div class="row">
+        <div class="col">
+          <label for="tcpdump_filter" class="col-form-label"><b>Address:</b></label>
+          <input class="form-control" id="tcpdump_filter" name="tcpdump_filter" value="{{ honeypot.tcpdump_filter }}" placeholder="udp://addr:514">
+        </div>
+        <div class="col">
+          <label for="tcpdump_timeout" class="col-form-label"><b>Format:</b></label>
+          <input class="form-control" id="tcpdump_timeout" name="tcpdump_timeout" {% if honeypot.tcpdump_timeout %} value="{{ honeypot.tcpdump_timeout }}"{% else %} value=3600 {% endif %}>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="tcpdump_max_size" class="col-form-label"><b>Tcpdump max file size:</b></label>
+          <input class="form-control" id="tcpdump_max_size" name="tcpdump_max_size" {% if honeypot.tcpdump_max_size %} value="{{ honeypot.tcpdump_max_size }}"{% else %} value=100 {% endif %}>
+        </div>
+        <div class="col">
+          <label for="tcpdump_extra_args" class="col-form-label"><b>Tcpdump extra args:</b></label>
+          <input class="form-control" id="tcpdump_extra_args" name="tcpdump_extra_args" value="{{ honeypot.tcpdump_extra_args }}">
+        </div>
+      </div>
+      <hr> {% endcomment %}
+      <h4>Auto export</h4>
+      <div class="row">
+        <div class="col">
+          <label for="export_address" class="col-form-label"><b>Address:</b></label>
+          <input class="form-control" id="export_address" name="export_address" value="{{ honeynet.export.address }}">
+        </div>
+        <div class="col">
+          <label for="export_crontab" class="col-form-label"><b>Crontab:</b></label>
+          <input class="form-control" id="export_crontab" name="export_crontab" value="{{ honeynet.export.crontab }}">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label for="export_username" class="col-form-label"><b>Username:</b></label>
+          <input class="form-control" id="export_username" name="export_username" value="{{ honeynet.export.username }}">
+        </div>
+        <div class="col">
+          <label for="export_password" class="col-form-label"><b>Password:</b></label>
+          <input type="password" class="form-control" id="export_password" name="export_password">
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

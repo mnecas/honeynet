@@ -4,7 +4,7 @@ from django.core.files.storage import FileSystemStorage
 import uuid
 
 
-class HoneypotLogging(models.Model):
+class HoneypotSyslog(models.Model):
     address = models.CharField(max_length=128)
     tls_ca_cert = models.CharField(max_length=128)
     tls_cert = models.CharField(max_length=128)
@@ -14,10 +14,19 @@ class HoneypotLogging(models.Model):
     format = models.CharField(max_length=128)
     labels = models.CharField(max_length=128)
 
+
+class HoneypotExport(models.Model):
+    address = models.CharField(max_length=128)
+    username = models.CharField(max_length=128)
+    password = models.CharField(max_length=128)
+    crontab = models.CharField(max_length=128)
+
+
 class Honeynet(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=128)
     subnet = models.CharField(max_length=20, blank=True)
+    export = models.ForeignKey(HoneypotExport, on_delete=models.CASCADE, blank=True, null=True)
 
 
 class Honeypot(models.Model):
@@ -25,6 +34,7 @@ class Honeypot(models.Model):
     name = models.CharField(unique=True, max_length=128)
     ip_addr = models.CharField(max_length=16)
     author = models.ForeignKey(User, on_delete=models.CASCADE)
+    # logging = models.ForeignKey(HoneypotLogging, on_delete=models.CASCADE)
     honeynet = models.ForeignKey(Honeynet, on_delete=models.CASCADE)
     image = models.CharField(max_length=128)
     ports = models.CharField(max_length=128)
@@ -32,6 +42,8 @@ class Honeypot(models.Model):
     tcpdump_timeout = models.IntegerField(default=3600, blank=True, null=True)
     tcpdump_max_size = models.IntegerField(default=100, blank=True, null=True)
     tcpdump_extra_args = models.CharField(max_length=512, blank=True)
+    # honeypot_container_id = models.CharField(max_length=128)
+    # monitoring_container_id = models.CharField(max_length=128)
 
 
 class Attacker(models.Model):
