@@ -15,6 +15,7 @@ services:
       driver: syslog
       options:
         syslog-address: "tcp://{{ syslog_ip }}:514"
+        tag: "{{ honeynet.name }}/{{ honeypot.name }}"
 {% endif %}
     networks:
       honeynet_bridge:

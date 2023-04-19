@@ -1,12 +1,10 @@
 from django.core.management.base import BaseCommand, CommandError
 from main.models import HoneypotAttack, Honeypot, AttackDump, Honeynet, HoneypotExport
 from ftplib import FTP
-from django.shortcuts import get_object_or_404
 from django.conf import settings
 import os
-from os import listdir
-from os.path import isfile, join
 
+# TODO: CLEANUP CODE!
 class Command(BaseCommand):
     def add_arguments(self, parser):
         # Named (optional) arguments
@@ -31,11 +29,15 @@ class Command(BaseCommand):
             self._change_to_subdir(dirname)
             self.ftp.cwd(dirname)
 
-    def _send_file(self, filepath):
+    def _send_file(self, filepath, filename=None):
         ftp_dir = self.ftp.pwd()
-        self.ftp.cwd(os.path.dirname(filepath))
-        filename = os.path.basename(filepath)
-        file = open(os.path.join(settings.MEDIA_ROOT,filepath),'rb')
+        if filename:
+            self.ftp.cwd(os.path.dirname(filename))
+            filename = os.path.basename(filename)
+        else:
+            filename = os.path.basename(filepath)
+            self.ftp.cwd(os.path.dirname(filepath))
+        file = open(filepath,'rb')
         self.ftp.storbinary(f"STOR {filename}", file)
         self.ftp.cwd(ftp_dir)
         file.close()
@@ -68,7 +70,19 @@ class Command(BaseCommand):
                 continue
             self._create_dirs(os.path.dirname(pcaps.first().path))
             for pcap in pcaps:
-                self._send_file(pcap.path)
-                pcap.delete()
+                self._send_file(os.path.join(settings.MEDIA_ROOT,pcap.path))
+                # pcap.delete()
 
+        syslog_path = "/var/log/remote/"
+        print(honeynet.name)
+        honeypots = [f for f in os.listdir(os.path.join(syslog_path, honeynet.name)) if os.path.isdir(os.path.join(syslog_path, honeynet.name, f))]
+        for honeypot in honeypots:
+            honeypot_logs = [f for f in os.listdir(os.path.join(syslog_path, honeynet.name, honeypot)) if os.path.isfile(os.path.join(syslog_path, honeynet.name, honeypot, f))]
+            # self._send_file(pcap.path)
+            honeypot_dir = honeypot.split("[")[0]
+            print(f"[Syslog dir] {honeypot_dir}")
+            self._create_dirs(honeypot_dir)
+            for log in honeypot_logs:
+                print(f"[Syslog log] {log}")
+                self._send_file(os.path.join(syslog_path, honeynet.name, honeypot,log),os.path.join(honeypot_dir, log))
         self.ftp.quit()

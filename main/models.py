@@ -1,8 +1,10 @@
 from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.storage import FileSystemStorage
+from django.conf import settings
 import uuid
-
+import os
+import shutil
 
 class HoneypotSyslog(models.Model):
     address = models.CharField(max_length=128)
@@ -28,6 +30,10 @@ class Honeynet(models.Model):
     subnet = models.CharField(max_length=20, blank=True)
     export = models.ForeignKey(HoneypotExport, on_delete=models.CASCADE, blank=True, null=True)
 
+    # def delete(self, *args, **kwargs):
+    #     honeynet_dir = os.path.join(settings.BASE_DIR, "honeynets", str(self.id))
+    #     if os.path.exists(honeynet_dir):
+    #         shutil.rmtree(honeynet_dir)
 
 class Honeypot(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -45,6 +51,10 @@ class Honeypot(models.Model):
     # honeypot_container_id = models.CharField(max_length=128)
     # monitoring_container_id = models.CharField(max_length=128)
 
+    # def delete(self, *args, **kwargs):
+    #     honeypot_dir = os.path.join(settings.BASE_DIR, "honeynets", self.honeynet.id, str(self.id))
+    #     if os.path.exists(honeypot_dir):
+    #         shutil.rmtree(honeypot_dir)
 
 class Attacker(models.Model):
     source_addr = models.GenericIPAddressField()

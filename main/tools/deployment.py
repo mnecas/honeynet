@@ -146,6 +146,10 @@ class HoneypotDeployment:
 
 
     def get_syslog_ip(self):
+        network = self.client.networks.get(self.honeypot.honeynet.name)
+        if not "syslog" in list(map(lambda x: x.name, network.containers)):
+            self.client.api.connect_container_to_network("syslog", self.honeypot.honeynet.name)
+
         return self._get_container_ip("syslog")
 
     def get_ip(self):
