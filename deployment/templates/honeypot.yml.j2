@@ -2,6 +2,7 @@ version: '3.4'
 services:
   honeypot-{{ honeypot.name }}-{{ honeypot_id }}:
     image: {{ honeypot.image }}
+    container_name: {{ honeypot.name }}
     restart: always
 {% if honeypot_ports and honeypot_ports[0] %}
     ports:
@@ -9,12 +10,12 @@ services:
       - "{{ port }}"
 {% endfor %}
 {% endif %}
+{% if syslog_ip %}
     logging:
       driver: syslog
       options:
-        syslog-address: "udp://10.10.80.231:514"
-        syslog-format: "rfc3164"
-        tag: "node-red2"
+        syslog-address: "tcp://{{ syslog_ip }}:514"
+{% endif %}
     networks:
       honeynet_bridge:
 {% if honeypot.ip_addr and not update %}

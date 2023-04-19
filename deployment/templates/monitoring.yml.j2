@@ -1,8 +1,15 @@
 version: '3.4'
 services:
   honeypot-{{ honeypot.name }}-monitoring-{{ honeypot_id }}:
+    container_name: {{ honeypot.name }}-monitoring
     image: quay.io/mnecas0/honeypot-base:latest
     restart: always
+{% if syslog_ip %}
+    logging:
+      driver: syslog
+      options:
+        syslog-address: "tcp://{{ syslog_ip }}:514"
+{% endif %}
     environment:
       DEBUG: 1
       SERVER: "127.0.0.1:8000"

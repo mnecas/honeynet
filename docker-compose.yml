@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   web:
-    container_name: honeypot_server
+    container_name: honeynet_web
     build: .
     command:
       - /bin/bash
@@ -14,3 +14,30 @@ services:
     network_mode: host
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+  # database:
+  #   container_name: database_web
+  #   build: .
+  #   command:
+  #     - /bin/bash
+  #     - -c
+  #     - |
+  #       python3 manage.py migrate
+  #       python3 manage.py create_admin
+  #       python3 manage.py runserver 127.0.0.1:8000
+  #   network_mode: host
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+
+  syslogserver:
+    # image: mysyslog
+    build: deployment/logging/
+    # hostname: syslog
+    container_name: syslog
+    restart: always
+    volumes:
+      - "/var/log:/var/log"
+    ports:
+      - 514:514
+      - 514:514/udp
+    cap_add:
+      - SYSLOG

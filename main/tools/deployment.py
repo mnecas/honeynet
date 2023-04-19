@@ -8,11 +8,6 @@ import docker
 import multiprocessing
 
 
-class HoneynetData:
-    def __init__(self):
-        pass
-
-
 class HoneynetDeployment:
     def __init__(self, honeynet):
         self.honeynet = honeynet
@@ -32,6 +27,7 @@ class HoneynetDeployment:
             self.client.networks.create(self.honeynet.name, ipam=ipam_config)
         else:
             self.client.networks.create(self.honeynet.name)
+        self.client.api.connect_container_to_network("syslog", self.honeynet.name)
 
     def _delete_container(self, container):
         container.stop()
@@ -125,6 +121,7 @@ class HoneypotDeployment:
         templateLoader = jinja2.FileSystemLoader(searchpath="./")
         templateEnv = jinja2.Environment(loader=templateLoader)
         template = templateEnv.get_template(src_file)
+
         data = {
             "honeypot": model_to_dict(self.honeypot),
             "honeypot_id": str(self.honeypot.id),
@@ -132,6 +129,7 @@ class HoneypotDeployment:
             "honeypot_ports": list(self.honeypot.ports.split(",")),
             "honeynet": model_to_dict(self.honeypot.honeynet),
             "update": self.update,
+            "syslog_ip": self.get_syslog_ip(),
         }
         with open(dst_file, "w+") as f:
             f.write(template.render(data))
@@ -146,9 +144,16 @@ class HoneypotDeployment:
             honeypot_id = f.read()
         return honeypot_id
 
+
+    def get_syslog_ip(self):
+        return self._get_container_ip("syslog")
+
     def get_ip(self):
+        return self._get_container_ip(self.get_honeypot_container_id())
+
+    def _get_container_ip(self, container):
         container_info = self.client.api.inspect_container(
-            str(self.get_honeypot_container_id()).replace("\n", "")
+            str(container).replace("\n", "")
         )
         return container_info["NetworkSettings"]["Networks"][
             self.honeypot.honeynet.name

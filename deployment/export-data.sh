@@ -4,5 +4,6 @@
 # docker inspect --format="{{.LogPath}}" 250005753d3d
 
 # sudo sh -c 'echo "" > $(docker inspect --format="{{.LogPath}}" 250)'
-
+echo "Test" >> /tmp/test
+pwd >> /tmp/test
 

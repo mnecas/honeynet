@@ -237,7 +237,7 @@ class HoneynetView(TemplateView):
             cron.write_to_user(user=True)
 
             honeynet.export.save()
-
+            honeynet.save()
             return redirect(
                 reverse("honeynets_details", kwargs={"hn_pk": str(honeynet.id)})
             )
