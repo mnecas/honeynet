@@ -77,7 +77,7 @@ class HoneypotViewSet(ModelViewSet):
         if not file_obj:
             return Response(status=400)
         fs = FileSystemStorage()
-        file_path = os.path.join(str(honeypot.pk), file_obj.name)
+        file_path = os.path.join(str(honeypot.name), file_obj.name)
         filename = fs.save(file_path, file_obj)
         # uploaded_file_url = fs.url(filename)
         AttackDump.objects.get_or_create(path=filename, honeypot=honeypot)

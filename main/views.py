@@ -232,7 +232,7 @@ class HoneynetView(TemplateView):
             ftp.connect()
 
             export_script = os.path.join(os.getcwd(),"deployment","export-data.sh")
-            cron = CronTab(tab=f"{honeynet.export.crontab} {export_script}")
+            cron = CronTab(tab=f"{honeynet.export.crontab} {export_script} {honeynet.id}")
             # user=True adds to current user
             cron.write_to_user(user=True)
 

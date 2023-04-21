@@ -9,11 +9,12 @@ services:
       - -c
       - |
         python3 manage.py migrate
-        python3 manage.py create_admin
         python3 manage.py runserver 127.0.0.1:8000
     network_mode: host
     volumes:
+      - "/var/log:/var/log"
       - /var/run/docker.sock:/var/run/docker.sock
+        # python3 manage.py create_admin
   # database:
   #   container_name: database_web
   #   build: .

@@ -36,7 +36,8 @@ class Command(BaseCommand):
             filename = os.path.basename(filename)
         else:
             filename = os.path.basename(filepath)
-            self.ftp.cwd(os.path.dirname(filepath))
+            print(os.path.dirname(filepath))
+            self.ftp.cwd(os.path.basename(os.path.dirname(filepath)))
         file = open(filepath,'rb')
         self.ftp.storbinary(f"STOR {filename}", file)
         self.ftp.cwd(ftp_dir)
@@ -70,8 +71,8 @@ class Command(BaseCommand):
                 continue
             self._create_dirs(os.path.dirname(pcaps.first().path))
             for pcap in pcaps:
-                self._send_file(os.path.join(settings.MEDIA_ROOT,pcap.path))
-                # pcap.delete()
+                self._send_file(os.path.join(settings.MEDIA_ROOT, pcap.path))
+                pcap.delete()
 
         syslog_path = "/var/log/remote/"
         print(honeynet.name)
@@ -84,5 +85,6 @@ class Command(BaseCommand):
             self._create_dirs(honeypot_dir)
             for log in honeypot_logs:
                 print(f"[Syslog log] {log}")
-                self._send_file(os.path.join(syslog_path, honeynet.name, honeypot,log),os.path.join(honeypot_dir, log))
+                self._send_file(os.path.join(syslog_path, honeynet.name, honeypot, log),os.path.join(honeypot_dir, log))
+            os.remove(os.path.join(syslog_path, honeynet.name, honeypot, log))
         self.ftp.quit()
