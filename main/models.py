@@ -19,6 +19,7 @@ class HoneypotSyslog(models.Model):
 
 class HoneypotExport(models.Model):
     address = models.CharField(max_length=128)
+    path = models.CharField(max_length=128, blank=True, null=True)
     username = models.CharField(max_length=128)
     password = models.CharField(max_length=128)
     crontab = models.CharField(max_length=128)

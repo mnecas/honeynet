@@ -55,7 +55,8 @@ class Command(BaseCommand):
         self.ftp = FTP()
         self.ftp.connect(honeynet.export.address, 21)
         self.ftp.login(honeynet.export.username, honeynet.export.password)
-
+        if honeynet.export.path:
+            self.ftp.cwd(honeynet.export.path)
         self._create_dirs("honeynet")
         self.ftp.cwd("honeynet")
 

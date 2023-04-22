@@ -9,3 +9,4 @@ whitenoise
 jinja2
 croniter
 python-crontab
+tzdata
