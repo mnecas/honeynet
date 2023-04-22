@@ -87,5 +87,5 @@ class Command(BaseCommand):
             for log in honeypot_logs:
                 print(f"[Syslog log] {log}")
                 self._send_file(os.path.join(syslog_path, honeynet.name, honeypot, log),os.path.join(honeypot_dir, log))
-            os.remove(os.path.join(syslog_path, honeynet.name, honeypot, log))
+                os.remove(os.path.join(syslog_path, honeynet.name, honeypot, log))
         self.ftp.quit()

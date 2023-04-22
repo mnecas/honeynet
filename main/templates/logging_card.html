@@ -35,7 +35,7 @@
       <div class="row">
         <div class="col">
           <label for="export_address" class="col-form-label"><b>Address:</b></label>
-          <input class="form-control" id="export_address" name="export_address" value="{% if honeynet %}{{ honeynet.export.address }}:{{ honeynet.export.path }}{% endif %}">
+          <input class="form-control" id="export_address" name="export_address" value="{% if honeynet %}{{ honeynet.export.address }}{% if honeynet.export.path %}:{{ honeynet.export.path }}{% endif %}{% endif %}">
         </div>
         <div class="col">
           <label for="export_crontab" class="col-form-label"><b>Crontab:</b></label>
