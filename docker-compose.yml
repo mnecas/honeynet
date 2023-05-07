@@ -1,8 +1,17 @@
 version: "3.9"
 
 services:
+  db:
+    image: postgres:13
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    network_mode: host
+
   web:
     container_name: honeynet_web
+    # image: quay.io/mnecas0/honeynet
     build: .
     command:
       - /bin/bash
@@ -14,30 +23,20 @@ services:
         python3 manage.py runserver 127.0.0.1:8000
     network_mode: host
     volumes:
-      - "/var/log:/var/log"
+      - /var/log:/var/log
       - /var/run/docker.sock:/var/run/docker.sock
-        # python3 manage.py create_admin
-  # database:
-  #   container_name: database_web
-  #   build: .
-  #   command:
-  #     - /bin/bash
-  #     - -c
-  #     - |
-  #       python3 manage.py migrate
-  #       python3 manage.py create_admin
-  #       python3 manage.py runserver 127.0.0.1:8000
-  #   network_mode: host
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    depends_on:
+      - db
 
   syslogserver:
-    # image: mysyslog
+    # image: quay.io/mnecas0/honeypot-rsyslog
     build: deployment/logging/
-    # hostname: syslog
     container_name: syslog
     restart: always
     volumes:
-      - "/var/log:/var/log"
+      - /var/log:/var/log
     cap_add:
       - SYSLOG
