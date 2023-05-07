@@ -4,7 +4,7 @@ RUN echo '$ModLoad imudp \n\
 $UDPServerRun 514 \n\
 $ModLoad imtcp \n\
 $InputTCPServerRun 514 \n\
-$template RemoteStore, "/var/log/remote/%syslogtag%/%$year%-%$month%-%$day%-%$hour%.log" \n\
+$template RemoteStore, "/var/log/remote/%syslogtag%/%$day%-%$month%-%$year%.log" \n\
 :source, !isequal, "localhost" -?RemoteStore \n\
 :source, isequal, "last" ~ ' > /etc/rsyslog.conf
 ENTRYPOINT ["rsyslogd", "-n"]
