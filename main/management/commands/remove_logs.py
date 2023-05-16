@@ -4,6 +4,7 @@ from ftplib import FTP
 from django.shortcuts import get_object_or_404
 import os
 
+
 class Command(BaseCommand):
     def add_arguments(self, parser):
         # Named (optional) arguments

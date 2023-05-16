@@ -202,7 +202,9 @@ class HoneynetView(TemplateView):
     def post(self, request, hn_pk):
         honeynet = get_object_or_404(Honeynet, id=hn_pk)
         try:
-            if request.POST.get("export_crontab") and not CronSlices.is_valid(request.POST.get("export_crontab")):
+            if request.POST.get("export_crontab") and not CronSlices.is_valid(
+                request.POST.get("export_crontab")
+            ):
                 raise Exception("Invalid crontab format!")
             if honeynet.export:
                 address = request.POST.get("export_address").split(":")
@@ -214,10 +216,12 @@ class HoneynetView(TemplateView):
                 if request.POST.get("export_password"):
                     honeynet.export.password = request.POST.get("export_password")
 
-            elif request.POST.get("export_address") and \
-                request.POST.get("export_crontab") and \
-                request.POST.get("export_username") and \
-                request.POST.get("export_password"):
+            elif (
+                request.POST.get("export_address")
+                and request.POST.get("export_crontab")
+                and request.POST.get("export_username")
+                and request.POST.get("export_password")
+            ):
                 address = request.POST.get("export_address").split(":")
                 export = HoneypotExport(
                     address=address,
@@ -233,13 +237,15 @@ class HoneynetView(TemplateView):
             ftp = FTP(
                 host=honeynet.export.address,
                 user=honeynet.export.username,
-                passwd=honeynet.export.password
+                passwd=honeynet.export.password,
             )
             ftp.connect()
             ftp.quit()
 
-            export_script = os.path.join(os.getcwd(),"deployment","export-data.sh")
-            cron = CronTab(tab=f"{honeynet.export.crontab} {export_script} {honeynet.id}")
+            export_script = os.path.join(os.getcwd(), "deployment", "export-data.sh")
+            cron = CronTab(
+                tab=f"{honeynet.export.crontab} {export_script} {honeynet.id}"
+            )
             # user=True adds to current user
             cron.write_to_user(user=True)
 
@@ -254,6 +260,7 @@ class HoneynetView(TemplateView):
             resp["honeynet"] = honeynet
             resp["error"] = e
             return render(request, "honeynet.html", resp)
+
 
 class HoneynetAddView(TemplateView):
     template_name = "honeynet.html"
@@ -276,15 +283,23 @@ class HoneynetAddView(TemplateView):
             )
             deployment = HoneynetDeployment(honeynet)
             try:
-                if request.POST.get("export_address") and request.POST.get("export_crontab") and request.POST.get("export_username") and request.POST.get("export_password"):
-
+                if (
+                    request.POST.get("export_address")
+                    and request.POST.get("export_crontab")
+                    and request.POST.get("export_username")
+                    and request.POST.get("export_password")
+                ):
                     # with CronTab(user='root') as cron:
                     #     job = cron.new(command='echo hello_world')
                     #     job.minute.every(1)
 
                     address = request.POST.get("export_address").split(":")
                     print(address)
-                    ftp = FTP(host=address[0],user=request.POST.get("export_username"),passwd=request.POST.get("export_password"))
+                    ftp = FTP(
+                        host=address[0],
+                        user=request.POST.get("export_username"),
+                        passwd=request.POST.get("export_password"),
+                    )
                     ftp.connect()
                     ftp.quit()
 

@@ -1,0 +1,4 @@
+CREATE ROLE mnecas LOGIN ENCRYPTED PASSWORD 'mnecas';
+CREATE DATABASE main_honeynet OWNER mnecas;
+CREATE SCHEMA main_honeynet AUTHORIZATION mnecas;
+GRANT ALL PRIVILEGES ON DATABASE main_honeynet TO mnecas;

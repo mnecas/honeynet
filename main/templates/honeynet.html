@@ -84,23 +84,7 @@
         "fill": {
           "src": "{% static 'switch.png' %}"
         }
-      }/*,,
-      {
-        "id": "data",
-        "name": "Data",
-        "height": 50,
-        "fill": {
-          "src": "{% static 'main/data.webp' %}"
-        }
       }
-      ,{
-        "id": "mirroring",
-        "name": "Mirroring",
-        "height": 50,
-        "fill": {
-          "src": "{% static 'main/mirroring.webp' %}"
-        }
-      }*/
       {% for honeypot in honeypots %}
       ,{
         "id": "{{ honeypot.id }}",

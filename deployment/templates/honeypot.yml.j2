@@ -11,6 +11,9 @@ services:
 {% endfor %}
 {% endif %}
 {% if syslog_ip %}
+
+    cap_add:
+      - NET_ADMIN
     logging:
       driver: syslog
       options:

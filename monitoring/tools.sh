@@ -38,15 +38,3 @@ send(){
         $data_params \
         http://$HONEYPOT_SERVER/api/$ID/$endpoint
 }
-
-
-display_help() {
-    # taken from https://stackoverflow.com/users/4307337/vincent-stans
-    echo "Usage: $0 [option...] {start|stop|restart}" >&2
-    echo
-    echo "   -r, --resolution           run with the given resolution WxH"
-    echo "   -d, --display              Set on which display to host on "
-    echo
-    # echo some stuff here for the -a or --add-options
-    exit 1
-}

@@ -20,6 +20,7 @@ $COMPOSE_CMD -f $HONEYPOT_PATH pull
 $COMPOSE_CMD -f $HONEYPOT_PATH up -d
 honeypot_container_id=$($COMPOSE_CMD -f $HONEYPOT_PATH ps -q)
 echo $honeypot_container_id > $(dirname $HONEYPOT_PATH)/honeypot_id
+
 # Get honeypot brdige name to filter the communication from bridge interface
 honeypot_network=$(docker container inspect --format '{{range $net,$v := .NetworkSettings.Networks}}{{printf "%s\n" $net}}{{end}}' $honeypot_container_id)
 network_id=$(docker network inspect -f {{.Id}} $honeypot_network)

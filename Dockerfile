@@ -10,7 +10,7 @@ ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update -y
-RUN apt install python3 python3-pip curl cron libpq-dev -y
+RUN apt install python3 python3-pip curl cron libpq-dev wireshark-common -y
 RUN pip3 install -r requirements.txt
 # Install docker and docker compose
 RUN apt install docker docker-compose -y
