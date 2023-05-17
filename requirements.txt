@@ -12,3 +12,4 @@ python-crontab
 tzdata
 psycopg2
 psycopg2-binary
+python-decouple

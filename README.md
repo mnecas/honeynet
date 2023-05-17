@@ -23,8 +23,6 @@ For database initialization:
 
 `python3 manage.py migrate`
 
-To run the server use:
+To run the server in the development mode use:
 
-`python3 maange.py runserver`
-
-(Recommend chaning the `DEBUG` in settings to `True`)
+`python3 manage.py runserver`
