@@ -4,7 +4,7 @@ FROM ubuntu:latest
 COPY . /code/
 WORKDIR /code
 COPY requirements.txt /code/
-RUN chown -R root:root /code/
+# RUN chown -R root:root /code/
 
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

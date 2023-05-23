@@ -4,6 +4,8 @@ services:
     image: {{ honeypot.image }}
     container_name: {{ honeypot.name }}
     restart: always
+    cap_drop:
+      - ALL
 {% if honeypot_ports and honeypot_ports[0] %}
     ports:
 {% for port in honeypot_ports %}
@@ -11,9 +13,6 @@ services:
 {% endfor %}
 {% endif %}
 {% if syslog_ip %}
-
-    cap_add:
-      - NET_ADMIN
     logging:
       driver: syslog
       options:
